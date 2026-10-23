@@ -25,7 +25,13 @@ export const MODULES=[
  ["prime","Asal Sayılar","Sıralı","Asal sayı içeren altılıların istatistiği"],
  ["consecutive","Ardışık Sayılar","Sıralı","Altılılarda bitişik sayı çifti analizi"],
  ["firstlast","İlk / Son","Sıralı","Altılıdaki en küçük ve en büyük sayı dağılımları"],
- ["eight","Son 8 Çekiliş","Kısa dönem","Son sekiz çekilişteki hareketleri inceler"]
+ ["eight","Son 8 Çekiliş","Kısa dönem","Son sekiz çekilişteki hareketleri inceler"],
+ ["grid","GRID · Onlu Harita","Analiz","Onlu sıra ve son hane üzerinden sayı yoğunluk haritası"],
+ ["list","LOTO List · Sıra","Analiz","Toplam sıklık, son dönem sıklık ve gecikme karşılaştırmalı listesi"],
+ ["quartets","Dörtlü Gruplar","Gruplar","Birlikte görülen dörtlülerin geçmiş tekrar adedi"],
+ ["quintets","Beşli Gruplar","Gruplar","Beşli eşleşmelerin frekans ve benzerlik incelemesi"],
+ ["spread","Seri Büyüklüğü","Sıralı","Sıralı altılılarda ilk ve son sayı arasındaki açıklık"],
+ ["streak","Üst Üste Gelme","Kısa dönem","Aynı sayının arka arkaya çekilişlerde görülme adedi"]
 ].map(([id,name,category,description])=>({id,name,category,description}));
 
 export const CLUB=[
@@ -96,7 +102,7 @@ export function analyze(ctx,id,limit=18){
  }
  const popular=mode(matrixPattern),bestGroup=popular?String(popular).split("-").map(Number):[2,1,2,1];
  const pairCounts=new Map(),tripleCounts=new Map(),followers=Array(61).fill(0);
- if(["pairs","triples","follow"].includes(id)){
+ if(["pairs","triples","follow","quartets","quintets"].includes(id)){
    for(let i=0;i<recent.length;i++){
      const nums=recent[i].numbers;
      for(let a=0;a<6;a++)for(let b=a+1;b<6;b++){
@@ -111,6 +117,22 @@ export function analyze(ctx,id,limit=18){
      }
    }
  }
+ const groupCounts=new Map();
+ if(id==="quartets"||id==="quintets"){
+  const required=id==="quartets"?4:5;
+  for(const draw of recent){
+   const rec=(base,start)=>{
+    if(base.length===required){const key=base.join("-");groupCounts.set(key,(groupCounts.get(key)||0)+1);return}
+    for(let i=start;i<draw.numbers.length;i++)rec([...base,draw.numbers[i]],i+1);
+   };
+   rec([],0);
+  }
+ }
+ const historySpread=quantile(recent.map(row=>row.numbers[5]-row.numbers[0]),.5);
+ const digitCounts=Array(10).fill(0),decadeCounts=Array(6).fill(0);
+ recent.forEach(row=>row.numbers.forEach(x=>{digitCounts[x%10]++;decadeCounts[Math.floor((x-1)/10)]++}));
+ const streakCounts=Array(61).fill(0);
+ for(let i=1;i<recent.length;i++)for(const number of recent[i].numbers)if(recent[i-1].numbers.includes(number))streakCounts[number]++;
  const modalOdd=Number(mode(ctx.parities)??3),medianSum=quantile(ctx.sums,.5);
  const lows=recent.map(x=>x.numbers[0]),highs=recent.map(x=>x.numbers[5]);
  const centers=ALL.map(n=>avg(recent.map(x=>x.numbers.some(y=>Math.abs(y-n)<=2)?1:0)));
@@ -147,6 +169,13 @@ export function analyze(ctx,id,limit=18){
    case "consecutive":scores[n]=sum(recent.map(row=>row.numbers.includes(n-1)||row.numbers.includes(n+1)?1:0));break;
    case "firstlast":scores[n]=recent.filter(row=>Math.abs(row.numbers[0]-n)<=3||Math.abs(row.numbers[5]-n)<=3).length;break;
    case "eight":scores[n]=recent.slice(-8).filter(row=>row.numbers.includes(n)).length;break;
+   case "grid":scores[n]=digitCounts[n%10]*.65+decadeCounts[Math.floor((n-1)/10)]*.35;break;
+   case "list":scores[n]=ctx.global[n]/Math.max(1,ctx.all.length)*20+f[n]/Math.max(1,window)*35-.015*d[n];break;
+   case "quartets":case "quintets":
+     scores[n]=sum([...groupCounts].filter(([key])=>key.split("-").map(Number).includes(n)).map(([,v])=>v*v))+
+       f[n]*.002;break;
+   case "spread":scores[n]=1-Math.min(1,Math.abs(n-(60-historySpread)/2)/30);break;
+   case "streak":scores[n]=streakCounts[n]+fShort[n]*.01;break;
    default:throw Error("Tanınmayan analiz: "+id);
    }
  }
