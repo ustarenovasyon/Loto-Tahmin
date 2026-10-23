@@ -59,7 +59,7 @@
 <section class="lab-panel" id="coupons">
 <div class="lab-panel-heading"><span class="lab-step">03</span><div><h2>Otomatik kupon atölyesi</h2><p>Bu bölüm rastgele ayar aramaz. Senin seçtiğin analizleri birlikte çalıştırarak her isteğinde yeni altılı kuponlar oluşturur.</p></div></div>
 <div class="lab-grid three"><label>Kaç kupon istersin?<input type="number" id="couponCount" min="1" max="100" value="5"></label>
-<label>Kullanılacak havuz<select id="couponPool"><option value="">Sadece seçtiğim analizler</option></select></label>
+<label>Kullanılacak havuz<select id="couponPool"><option value="">Seçili analizlerin puanları · geniş arama</option><option value="selected-union">Seçili analizlerin birleşik adayları</option><option value="selected-intersection">Seçili analizlerin ortak adayları</option></select></label>
 <label>Havuz kısıtı<select id="couponStrict"><option value="soft">Yumuşak · dışarıdan sayı gelebilir</option><option value="strict">Sıkı · yalnızca havuz sayıları</option></select></label></div>
 <div class="lab-note">Yukarıdaki analiz seçimlerini kullanır. Birden fazla analiz seçilirse birlikte puanlar; tüm kuponların aynı olmamasına ve sayısal dağılıma dikkat eder. 4 veya 5 bilme garantisi yoktur.</div>
 <div class="lab-actions"><button class="lab-button primary" id="makeCoupons">✣ Yeni kupon çalışması oluştur</button><button class="lab-button soft" id="saveCoupons">＋ Kuponları kaydet</button><button class="lab-button soft" id="downloadCoupons">↓ CSV indir</button></div>
@@ -76,7 +76,7 @@
 <div class="lab-grid two"><label>Geçmiş yarışma aralığı<select id="clubPeriod"><option value="10">10 çekiliş</option><option value="20" selected>20 çekiliş</option><option value="30">30 çekiliş</option><option value="50">50 çekiliş</option></select></label>
 <label>Tekrar üretilebilir yarışma numarası<input id="clubSeed" type="number" value="4719"></label></div>
 <div class="lab-actions"><button class="lab-button primary" id="runClub">♜ Sistemleri yarıştır</button><button class="lab-button soft" id="saveClub">＋ Yarışmayı kaydet</button></div>
-<div id="clubResult"></div>
+<div id="clubResult"></div><h3 class="lab-subtitle">Kaydettiğim yarışmalar</h3><div id="clubHistory"></div>
 </section>
 
 <section class="lab-panel" id="guide">
