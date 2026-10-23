@@ -251,12 +251,18 @@ export function filterPipeline(sourcePool,results,{keepAtLeast=6,order="gentle"}
  });
  const journal=[];
  for(const item of stages){
-   const next=pool.filter(n=>item.selected.includes(n));
-   const applicable=next.length>=min;
-   journal.push({id:item.id,name:item.name,before:pool.length,after:applicable?next.length:pool.length,
-     excluded:applicable?pool.filter(n=>!next.includes(n)):[],applied:applicable,
-     reason:applicable?"Uygulandı":next.length+" sayı bırakacaktı; en az "+min+" sayı koruma kuralıyla atlandı."});
-   if(applicable)pool=next;
+   const intersection=pool.filter(n=>item.selected.includes(n));
+   let next=intersection,reason="Kesişim uygulandı.";
+   if(pool.length<=min){next=pool;reason="Alt sınırda: mevcut sayılar korundu."}
+   else if(intersection.length<min){
+     // Sert kesişimde kaybolacak adayların en yüksek puanlıları alt sınırı doldurur.
+     const scores=results.find(r=>r.id===item.id)?.scores||{};
+     next=[...pool].sort((a,b)=>(scores[b]??0)-(scores[a]??0)||a-b).slice(0,min).sort((a,b)=>a-b);
+     reason="Korumalı puanlı süzgeç: "+intersection.length+" ortak, alt sınır "+min+".";
+   }
+   journal.push({id:item.id,name:item.name,before:pool.length,after:next.length,
+     excluded:pool.filter(n=>!next.includes(n)),applied:next.length<pool.length,reason});
+   pool=next;
  }
  return {source,remaining:pool,journal,removed:source.filter(n=>!pool.includes(n)),keepAtLeast:min,order};
 }
