@@ -5,9 +5,9 @@ import {parseArchive} from "../engine.mjs";
 import {MODULES,CLUB,buildContext,analyze,compareAnalysisSets,assessPool,historicalCheck,ticketMetrics} from "../analysis-engine.mjs";
 import {generateCoupons,clubContest,hexKey} from "../coupon-engine.mjs";
 const draws=parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"));
-test("975 real draws and 25 functional analysis modules",()=>{
+test("975 real draws and 31 functional analysis modules",()=>{
  assert.equal(draws.size,975);
- assert.equal(MODULES.length,25);
+ assert.equal(MODULES.length,31);
  const c=buildContext(draws,976,100);
  for(const m of MODULES){
   const r=analyze(c,m.id,18);
