@@ -218,6 +218,16 @@ el("ownNumbers").addEventListener("input",()=>{el("ownSource").value="manual"});
 el("simulateClub").onclick=()=>{try{simulate()}catch(e){toast(e.message)}};
 el("shuffleClub").onclick=()=>{try{newSimulation()}catch(e){toast(e.message)}};
 el("importExternal").onclick=()=>{try{addExternal()}catch(e){toast(e.message)}};
+el("externalFile").addEventListener("change",async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(file.size>120000)throw Error("Dosya en fazla 120 KB olabilir.");
+  el("externalColumns").value=await file.text();
+  if(!el("externalName").value.trim())el("externalName").value=file.name.replace(/\.(txt|csv)$/i,"").slice(0,75);
+  toast("Kolon dosyası okundu. Sistem adını kontrol edip Kaynağı ekle düğmesine bas.");
+ }catch(error){toast("Dosya hatası: "+error.message)}
+ e.target.value="";
+});
 el("sourceList").addEventListener("change",e=>{
  const id=e.target.dataset.source;if(!id)return;
  if(e.target.checked)state.chosen.add(id);else state.chosen.delete(id);
