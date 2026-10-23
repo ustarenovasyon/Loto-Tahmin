@@ -42,10 +42,10 @@
 <div id="labCombined"><p class="lab-empty">Kaydedilmiş havuzlardan karşılaştırmak istediklerini işaretle.</p></div>
 <div class="lab-sieve">
 <h3 class="lab-subtitle">Aşamalı sayı süzgeci</h3>
-<p class="lab-muted">Orijinal havuzunu koruyarak analizleri sırayla uygula. En az 6 sayı kalmayacaksa o basamağı otomatik atla.</p>
+<p class="lab-muted">Orijinal havuzunu koruyarak analizleri sırayla uygula. Belirlediğin alt sınıra kadar süz; daha sert bir elemede en yüksek puanlı adayları koru.</p>
 <div class="lab-grid three"><label>Başlangıç havuzu<select id="pipelineSource"><option value="">Kayıtlı havuz seç</option></select></label>
 <label>Filtre sırası<select id="pipelineOrder"><option value="gentle">Önce hafif, sonra sert</option><option value="selected">Analiz seçme sıram</option></select></label>
-<label>En az kaç sayı kalsın?<input type="number" id="pipelineMinimum" min="6" max="60" value="6"></label></div>
+<label>En az kaç sayı kalsın?<input type="number" id="pipelineMinimum" min="6" max="60" value="12"></label></div>
 <div class="lab-actions"><button class="lab-button primary" id="runPipeline">⇢ Seçilen analizlerle süz</button><button class="lab-button soft" id="savePipeline">＋ Sonucu kaydet</button></div>
 <div id="pipelineReport"></div>
 </div>
