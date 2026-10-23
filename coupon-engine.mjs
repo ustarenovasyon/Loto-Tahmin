@@ -1,5 +1,5 @@
 // Loto Tahmin · Modüler kupon üretimi ve birbirinden bağımsız sabit sistemler kulübü
-// "Otomatik eğitim" veya geçmişe uyumlayan parametre araması içermez.
+// Bağımsız analiz seçimiyle çalışan kupon ve yarışma hesapları.
 import {buildContext,analyze,ticketPass,ticketMetrics,sortedUnique,CLUB,assessPool} from "./analysis-engine.mjs";
 export const hexKey=nums=>[...nums].sort((a,b)=>a-b).join("-");
 const nums=Array.from({length:60},(_,i)=>i+1);
