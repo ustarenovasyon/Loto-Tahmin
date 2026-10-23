@@ -20,7 +20,7 @@
 <label>Geçmiş test adedi<select id="labTestCount"><option value="10">10 çekiliş</option><option value="20" selected>20 çekiliş</option><option value="50">50 çekiliş</option><option value="100">100 çekiliş</option></select></label></div>
 <div class="lab-minirow"><button id="selectAll" type="button">Tümünü seç</button><button id="deselectAll" type="button">Seçimi temizle</button><span id="selectedSummary">0 analiz seçildi</span></div>
 <div class="lab-module-list" id="labModules"></div>
-<div class="lab-actions"><button class="lab-button primary" id="analyzeNow">◉ Seçilen analizleri çalıştır</button><button class="lab-button soft" id="testNow">▤ Geçmişte kontrol et</button></div>
+<div class="lab-actions"><button class="lab-button primary" id="analyzeNow">◉ Seçilen analizleri çalıştır</button><button class="lab-button soft" id="saveAllAnalyses">＋ Tüm sonuçları kaydet</button><button class="lab-button soft" id="testNow">▤ Geçmişte kontrol et</button></div>
 <div class="lab-results" id="labResults"><p class="lab-empty">İlk analiz için yukarıdan bir veya birkaç modül seçip çalıştır.</p></div>
 <div id="labBacktest" class="lab-small-results"></div>
 </section>
@@ -32,6 +32,20 @@
 <div class="lab-saved-list" id="labSaved"></div>
 <div class="lab-actions"><button class="lab-button primary" id="combineNow">↗ Seçili havuzları birleştir</button><button class="lab-button soft" id="saveCombined">＋ Birleşimi kaydet</button><button class="lab-button soft" id="downloadPool">↓ TXT indir</button></div>
 <div id="labCombined"><p class="lab-empty">Kaydedilmiş havuzlardan karşılaştırmak istediklerini işaretle.</p></div>
+<div class="lab-sieve">
+<h3 class="lab-subtitle">Aşamalı sayı süzgeci</h3>
+<p class="lab-muted">Orijinal havuzunu koruyarak analizleri sırayla uygula. En az 6 sayı kalmayacaksa o basamağı otomatik atla.</p>
+<div class="lab-grid three"><label>Başlangıç havuzu<select id="pipelineSource"><option value="">Kayıtlı havuz seç</option></select></label>
+<label>Filtre sırası<select id="pipelineOrder"><option value="gentle">Önce hafif, sonra sert</option><option value="selected">Analiz seçme sıram</option></select></label>
+<label>En az kaç sayı kalsın?<input type="number" id="pipelineMinimum" min="6" max="60" value="6"></label></div>
+<div class="lab-actions"><button class="lab-button primary" id="runPipeline">⇢ Seçilen analizlerle süz</button><button class="lab-button soft" id="savePipeline">＋ Sonucu kaydet</button></div>
+<div id="pipelineReport"></div>
+</div>
+<div class="lab-backup"><h3 class="lab-subtitle">Çalışma yedeklerim</h3>
+<p class="lab-muted">Manuel matematik havuzların, analizlerin, kuponların ve yarışmaların kayıtlarını JSON yedeğine al; başka telefonda geri yükle.</p>
+<div class="lab-actions"><button type="button" class="lab-button soft" id="exportBackup">↓ Bütün kayıtlarımı indir</button>
+<label class="lab-button soft" for="importBackup">↑ Yedek dosyasından geri yükle<input id="importBackup" type="file" accept=".json,application/json" style="position:absolute;opacity:0;width:1px;height:1px"></label></div>
+</div>
 </section>
 
 <section class="lab-panel" id="coupons">
