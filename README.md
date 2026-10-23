@@ -48,7 +48,7 @@ Her modül seçilen hedefin **öncesindeki** çekilişleri kullanır, sonuçlar�
 - Kupon çalışmalarını kaydetme ve CSV indirme.
 
 ### Sistemler Kulübü
-Altı bağımsız **sabit analiz** sisteminin geçmiş çekilişlerde altılı tahminlerini karşılaştırır. Kendi analiz kombinasyonunuzla adlandırılmış yarışmacı da ekleyebilirsiniz. Sistemde kaldırılan otomatik ayar öğrenme/optimizasyon motoru **yoktur**.
+Altı bağımsız **sabit analiz** sisteminin geçmiş çekilişlerde altılı tahminlerini karşılaştırır. Kendi analiz kombinasyonunuzla adlandırılmış yarışmacı da ekleyebilirsiniz. Kuralları açık ve sabit kombinasyonlar kullanılır.
 
 ### Kayıt ve yedek
 Analizler, manuel havuzlar, kupon çalışmaları ve sistem yarışmaları tarayıcının `localStorage` alanında saklanır. **Tüm kayıtlarımı indir** ile JSON yedeği alın; gerektiğinde geri yükleyin. Bu yerel saklama yöntemi cihazlar arasında otomatik eşitleme sağlamaz.
