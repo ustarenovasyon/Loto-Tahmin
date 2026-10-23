@@ -44,7 +44,7 @@ export function generateCoupons({ctx,moduleIds,count=5,limit=18,manualPool=[],st
  if(!Number.isInteger(count)||count<1||count>100)throw Error("Kupon adedi 1–100 arasında olmalı.");
  const manual=sortedUnique(manualPool);if(strict&&manual.length>0&&manual.length<6)throw Error("Sıkı havuz için en az 6 sayı seç.");
  const rng=seeded(seed===null?entropy():seed),results=ids.map(id=>analyze(ctx,id,limit)),weights=weightAnalyses(results,manual,strict);
- const old=new Set(seen),all=[],skipped=0;
+ const old=new Set(seen),all=[];let skipped=0;
  for(let i=0;i<count;i++){
   let best=null,bestScore=-Infinity;
   for(let j=0;j<Math.min(220,90+count*4);j++){
