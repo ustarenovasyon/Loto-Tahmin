@@ -260,3 +260,35 @@ export function filterPipeline(sourcePool,results,{keepAtLeast=6,order="gentle"}
  }
  return {source,remaining:pool,journal,removed:source.filter(n=>!pool.includes(n)),keepAtLeast:min,order};
 }
+
+/** Her top için DNA, Limit, beraber gelenler ve matriksin açıklanabilir kayıtları. */
+export function inspectBall(ctx,number,bandSize=10){
+ const n=Number(number),size=Number(bandSize);
+ if(!Number.isInteger(n)||n<1||n>60)throw Error("İncelenecek top 1–60 arasında olmalı.");
+ if(!Number.isInteger(size)||size<2||size>100)throw Error("DNA dilimi 2–100 arasında olmalı.");
+ const stats=statsForNumber(ctx,n);
+ const chunks=[];
+ for(let i=0;i<ctx.recent.length;i+=size){
+   const segment=ctx.recent.slice(i,i+size);
+   chunks.push({start:segment[0].id,end:segment.at(-1).id,count:segment.filter(d=>d.numbers.includes(n)).length});
+ }
+ const together=Array(61).fill(0);
+ ctx.recent.forEach(d=>{
+  if(d.numbers.includes(n))d.numbers.filter(x=>x!==n).forEach(x=>together[x]++);
+ });
+ const partners=ALL.filter(x=>x!==n).sort((a,b)=>together[b]-together[a]||a-b)
+   .slice(0,12).map(x=>({number:x,count:together[x]}));
+ const history=ctx.byN[n].filter(id=>id<ctx.target).slice(-20).reverse();
+ const names=["Çok–Yakın","Çok–Uzun","Az–Yakın","Az–Uzun"];
+ return {number:n,stats,className:names[ctx.matrix[n]],history,
+   dna:chunks,limit:stats.intervals.slice(-16),partners,bandSize:size,
+   target:ctx.target};
+}
+/** Gerçek sıralı analizlerin açıklanabilir 12 satırlık örnek tablosu. */
+export function orderedHistory(ctx,count=12){
+ return ctx.recent.slice(-Math.max(1,Math.min(100,Number(count)||12))).map(d=>{
+   const nums=d.numbers,m=ticketMetrics(nums);
+   return {id:d.id,date:d.date,numbers:[...nums],...m,first:nums[0],last:nums[5],
+     gaps:nums.slice(1).map((n,i)=>n-nums[i])};
+ }).reverse();
+}
