@@ -69,3 +69,14 @@
 .lab-mod{padding:9px}.lab-mod strong{font-size:12px}.lab-mod small{font-size:10px}
 .lab-actions .lab-button{flex:1;min-width:0}.lab-stats>div{min-width:calc(50% - 7px)}.lab-team-strip{grid-template-columns:repeat(2,1fr)}.lab-ticket{gap:8px}.lab-ticket>.lab-ballrow{order:2;flex-basis:100%}.lab-minirow span{margin-left:0}.lab-ball{width:31px;height:31px}.lab-ticket .lab-ball{width:38px;height:38px}
 }
+
+.lab-inspector,.lab-sieve,.lab-backup{border-top:1px solid #e5edf5;margin-top:24px;padding-top:8px}
+.lab-bars{display:flex;height:120px;align-items:stretch;justify-content:center;gap:4px;margin:10px 0 26px;padding:9px 5px 0;border-bottom:1px solid #bfcde2}
+.lab-bar-unit{flex:1;min-width:5px;max-width:38px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative}
+.lab-bar-unit>span{font-size:10px;color:#657a96;line-height:1.2}
+.lab-bar-fill{width:100%;min-height:2px;background:linear-gradient(#6b9ade,#345bd4);border-radius:4px 4px 0 0}
+.lab-bar-unit>small{position:absolute;bottom:-22px;font-size:9px;color:#8a98a9}
+.lab-minititle{font-size:12px;margin:18px 0 4px;color:#40597a}
+.lab-minihead{font-size:11px;color:#33506e}
+.lab-inspector .lab-card{overflow:hidden}
+@media(max-width:650px){.lab-bars{gap:2px;height:100px}.lab-bar-unit>span{font-size:9px}.lab-bar-unit>small{font-size:8px}}
