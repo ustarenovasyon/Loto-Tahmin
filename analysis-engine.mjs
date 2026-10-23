@@ -235,3 +235,28 @@ export function historicalCheck(draws,config){
  }
  return {rows:all,average:avg(all.map(x=>x.hits)),histogram:Object.fromEntries([0,1,2,3,4,5,6].map(i=>[i,all.filter(x=>x.hits===i).length]))};
 }
+
+/** Aşamalı filtre: kaynak havuzun kopyası üzerinde çalışır, asla aslı değiştirmez.
+ * keepAtLeast = 6, her ara süzgeç en az 6 sayı bırakabiliyorsa uygulanır.
+ * order = gentle: en az daraltan önce; selected: kullanıcının seçtiği sıra.
+ */
+export function filterPipeline(sourcePool,results,{keepAtLeast=6,order="gentle"}={}){
+ const source=sortedUnique(sourcePool),min=Math.max(1,Math.min(60,Number(keepAtLeast)||6));
+ let pool=[...source];
+ const stages=results.map((r,index)=>({id:r.id,name:r.name||r.id,selected:sortedUnique(r.selected||[]),index}));
+ if(order==="gentle")stages.sort((a,b)=>{
+   const ca=source.filter(n=>a.selected.includes(n)).length,
+         cb=source.filter(n=>b.selected.includes(n)).length;
+   return cb-ca||a.index-b.index;
+ });
+ const journal=[];
+ for(const item of stages){
+   const next=pool.filter(n=>item.selected.includes(n));
+   const applicable=next.length>=min;
+   journal.push({id:item.id,name:item.name,before:pool.length,after:applicable?next.length:pool.length,
+     excluded:applicable?pool.filter(n=>!next.includes(n)):[],applied:applicable,
+     reason:applicable?"Uygulandı":next.length+" sayı bırakacaktı; en az "+min+" sayı koruma kuralıyla atlandı."});
+   if(applicable)pool=next;
+ }
+ return {source,remaining:pool,journal,removed:source.filter(n=>!pool.includes(n)),keepAtLeast:min,order};
+}
