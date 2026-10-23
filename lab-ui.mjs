@@ -123,9 +123,12 @@ function drawSaved(){
  const selected=el("couponPool").value,source=el("pipelineSource").value;
  const records=all.filter(m=>m.target===target&&m.pool.length>=6);
  const html=records.map(m=>'<option value="'+esc(m.kind+":"+m.id)+'">'+esc(m.name||m.id)+" · "+m.pool.length+" sayı</option>").join("");
- el("couponPool").innerHTML='<option value="">Sadece seçtiğim analizler</option>'+
+ el("couponPool").innerHTML='<option value="">Seçili analizlerin puanları · geniş arama</option>'+
+   '<option value="selected-union">Seçili analizlerin birleşik adayları</option>'+
+   '<option value="selected-intersection">Seçili analizlerin ortak adayları</option>'+
    (state.pipeline?.result?.remaining?.length>=6?'<option value="pipeline">Son aşamalı süzgeç · '+state.pipeline.result.remaining.length+' sayı</option>':"")+html;
- if(selected==="pipeline"&&state.pipeline?.result?.remaining?.length>=6)el("couponPool").value="pipeline";
+ if(["selected-union","selected-intersection"].includes(selected))el("couponPool").value=selected;
+ else if(selected==="pipeline"&&state.pipeline?.result?.remaining?.length>=6)el("couponPool").value="pipeline";
  else if(records.some(x=>x.kind+":"+x.id===selected))el("couponPool").value=selected;
  el("pipelineSource").innerHTML='<option value="">Kayıtlı havuz seç</option>'+html;
  if(records.some(x=>x.kind+":"+x.id===source))el("pipelineSource").value=source;
@@ -217,12 +220,17 @@ async function importBackup(file){
    const v=data.keys[k];
    if(v!==undefined&&v!==null&&Array.isArray(v))store(k,v);
  }
- loadSaved();state.chosen.clear();state.pipeline=null;drawSaved();drawCouponHistory();drawTeams();
+ loadSaved();state.chosen.clear();state.pipeline=null;drawSaved();drawCouponHistory();drawTeams();drawClubHistory();
  toast("Kayıtlar yedekten geri yüklendi.");
 }
 function savedPoolForCoupon(){
  const option=el("couponPool").value;
- return option==="pipeline"?(state.pipeline?.result.remaining||[]):option?poolByKey(option)?.pool||[]:[];
+ if(option==="pipeline")return state.pipeline?.result.remaining||[];
+ if(["selected-union","selected-intersection"].includes(option)){
+   const ctx=getCtx(),r=[...state.selection].map(id=>analyze(ctx,id,getSettings().limit));
+   return compareAnalysisSets(r,option==="selected-union"?"union":"intersection");
+ }
+ return option?poolByKey(option)?.pool||[]:[];
 }
 function makeCoupons(){
  const ctx=getCtx(),ids=[...state.selection];if(!ids.length)throw Error("Kupon için analiz seç.");
@@ -267,6 +275,13 @@ function downloadCoupons(){
  const rows=[head.join(";")];r.coupons.forEach((nums,i)=>rows.push([i+1,r.target,...nums,r.ids.join("+")].join(";")));
  dl("kuponlar_"+r.target+".csv",rows.join("\r\n"),"text/csv;charset=utf-8");
 }
+function drawClubHistory(){
+ el("clubHistory").innerHTML=state.clubHistory.length?state.clubHistory.slice(0,12).map(h=>
+   '<div class="lab-saved-row"><span><b>#'+h.target+' · '+h.period+' geçmiş çekiliş</b><small>'+
+   esc(h.date?.slice(0,10)||"")+' · Şampiyon: '+esc(h.leaders?.[0]?.name||"—")+
+   ' · ortalama '+fmt(h.leaders?.[0]?.average||0)+'</small></span></div>').join(""):
+   '<p class="lab-empty">Henüz kaydedilmiş yarışma bulunmuyor.</p>';
+}
 function drawTeams(){
  const teams=[...CLUB,...state.customTeams];
  el("clubTeams").innerHTML=teams.map(t=>'<div class="lab-team"><strong>♜ '+esc(t.name)+'</strong><small>'+
@@ -306,10 +321,10 @@ function saveClub(){
  if(!state.club)return toast("Önce yarışma çalıştır.");
  state.clubHistory.unshift({date:new Date().toISOString(),target:state.club.target,period:state.club.period,
   leaders:state.club.records.map(x=>({id:x.id,name:x.name,average:x.average}))});
- state.clubHistory=state.clubHistory.slice(0,30);store(STORAGE.club,state.clubHistory);toast("Kulüp karşılaştırması kaydedildi.");
+ state.clubHistory=state.clubHistory.slice(0,30);store(STORAGE.club,state.clubHistory);drawClubHistory();toast("Kulüp karşılaştırması kaydedildi.");
 }
 async function start(){
- loadSaved();drawModules();drawTeams();drawSaved();drawCouponHistory();
+ loadSaved();drawModules();drawTeams();drawSaved();drawCouponHistory();drawClubHistory();
  try{
   const response=await fetch("./data/draws.txt",{cache:"no-store"});if(!response.ok)throw Error("Veri yüklenemedi.");
   state.draws=parseArchive(await response.text());
