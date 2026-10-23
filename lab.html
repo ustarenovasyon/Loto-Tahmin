@@ -22,6 +22,14 @@
 <div class="lab-module-list" id="labModules"></div>
 <div class="lab-actions"><button class="lab-button primary" id="analyzeNow">◉ Seçilen analizleri çalıştır</button><button class="lab-button soft" id="saveAllAnalyses">＋ Tüm sonuçları kaydet</button><button class="lab-button soft" id="testNow">▤ Geçmişte kontrol et</button></div>
 <div class="lab-results" id="labResults"><p class="lab-empty">İlk analiz için yukarıdan bir veya birkaç modül seçip çalıştır.</p></div>
+<div class="lab-inspector">
+<h3 class="lab-subtitle">Top Detayı · DNA ve Limit Grafikleri</h3>
+<div class="lab-grid three"><label>İncelenecek top #<input id="inspectNumber" type="number" value="37" min="1" max="60"></label>
+<label>DNA dönem genişliği<select id="inspectBand"><option value="5">5 çekiliş</option><option value="10" selected>10 çekiliş</option><option value="20">20 çekiliş</option><option value="30">30 çekiliş</option></select></label>
+<div style="display:flex;align-items:end"><button class="lab-button soft" id="inspectNow">↗ Topu incele</button></div></div>
+<div id="inspectResult"></div>
+<h3 class="lab-subtitle">Sıralı Analizler · Gerçek çekiliş tablosu</h3>
+<div id="orderedResult"></div></div>
 <div id="labBacktest" class="lab-small-results"></div>
 </section>
 
