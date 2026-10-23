@@ -1,5 +1,5 @@
 import {parseArchive} from "./engine.mjs";
-import {MODULES,CLUB,buildContext,analyze,compareAnalysisSets,assessPool,historicalCheck,sortedUnique,filterPipeline} from "./analysis-engine.mjs";
+import {MODULES,CLUB,buildContext,analyze,compareAnalysisSets,assessPool,historicalCheck,sortedUnique,filterPipeline,inspectBall,orderedHistory} from "./analysis-engine.mjs";
 import {generateCoupons,clubContest,hexKey} from "./coupon-engine.mjs";
 const el=id=>document.getElementById(id);
 const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
@@ -31,6 +31,36 @@ function drawModules(){
     '><span><strong>'+esc(m.name)+'</strong><small>'+esc(m.description)+'</small></span></label>').join("")).join("");
  el("selectedSummary").textContent=state.selection.size+" analiz seçildi";
 }
+function renderInspector(){
+ if(!state.draws)return;
+ const ctx=getCtx();
+ const v=inspectBall(ctx,Number(el("inspectNumber").value),Number(el("inspectBand").value));
+ const r=v.stats,highest=Math.max(1,...v.dna.map(x=>x.count));
+ const chart=(data,max,label)=>'<div class="lab-bars">'+data.map((x,i)=>
+  '<div class="lab-bar-unit" title="'+esc(label(x))+'"><span>'+esc(String(x.count))+'</span>'+
+  '<div style="height:'+Math.max(4,100*x.count/max)+'%" class="lab-bar-fill"></div>'+
+  '<small>'+esc(String(x.end||i+1))+'</small></div>').join("")+'</div>';
+ const gaps=v.limit.map((x,i)=>({count:x,end:i+1}));
+ const maxGap=Math.max(1,...gaps.map(x=>x.count));
+ el("inspectResult").innerHTML='<div class="lab-card"><div class="lab-card-head"><strong>#'+v.number+
+   ' · '+esc(v.className)+'</strong><small>Hedef #'+v.target+'</small></div>'+
+   '<div class="lab-stats"><div><strong>'+r.count+'</strong><span>Tüm arşiv çıkışı</span></div>'+
+   '<div><strong>'+r.recent+'</strong><span>Seçilen dönem</span></div>'+
+   '<div><strong>'+r.delay+'</strong><span>Kaç çekiliştir yok?</span></div>'+
+   '<div><strong>'+fmt(r.gapAverage)+'</strong><span>Ortalama bekleme</span></div></div>'+
+   '<h4 class="lab-minititle">DNA · '+v.bandSize+' çekilişlik dönemlerde çıkış adedi</h4>'+
+   chart(v.dna,highest,x=>"#"+x.start+"–"+x.end+": "+x.count+" çıkış")+
+   '<h4 class="lab-minititle">Limit · geçmişteki son '+v.limit.length+' bekleme aralığı</h4>'+
+   (gaps.length?chart(gaps,maxGap,x=>x.count+" çekiliş bekleme"):'<p class="lab-muted">Yeterli tekrar verisi yok.</p>')+
+   '<div class="lab-grid two"><div><strong class="lab-minihead">Son görüldüğü çekilişler</strong><p class="lab-muted">'+v.history.map(x=>"#"+x).join(", ")+'</p></div>'+
+   '<div><strong class="lab-minihead">Beraber görülen sayılar</strong><p class="lab-muted">'+
+      v.partners.slice(0,8).map(x=>x.number+" ("+x.count+" kez)").join(", ")+'</p></div></div></div>';
+ const history=orderedHistory(ctx,12);
+ el("orderedResult").innerHTML=table('<thead><tr><th>Çekiliş</th><th>Altılı</th><th>Toplam</th><th>Tek/Çift</th><th>İlk/Son</th><th>Aralıklar</th></tr></thead><tbody>'+
+  history.map(row=>'<tr><td>#'+row.id+'</td><td>'+row.numbers.join(" – ")+'</td><td>'+row.total+
+  '</td><td>'+row.odd+' / '+row.even+'</td><td>'+row.first+' / '+row.last+
+  '</td><td>'+row.gaps.join(", ")+'</td></tr>').join("")+'</tbody>');
+}
 function renderResult(){
  const parent=el("labResults");
  if(!state.results.length){parent.innerHTML='<p class="lab-empty">Henüz çalıştırılmış analiz yok.</p>';return}
@@ -49,7 +79,7 @@ function analyzeSelected(){
  if(!state.selection.size)throw Error("En az bir analiz seç.");
  const ctx=getCtx(),limit=getSettings().limit;
  state.results=[...state.selection].map(id=>analyze(ctx,id,limit));
- renderResult();
+ renderResult();renderInspector();
  toast(state.results.length+" analiz hesaplandı. Sonuçları ayrı ayrı kaydedebilirsin.");
 }
 function makeSavedEntry(name,pool,moduleIds){
@@ -299,6 +329,9 @@ el("deselectAll").onclick=()=>{state.selection.clear();drawModules()};
 el("labResults").addEventListener("click",e=>{const id=e.target.closest("[data-save-analysis]")?.dataset.saveAnalysis;if(id)saveModule(id)});
 el("analyzeNow").onclick=()=>{try{analyzeSelected()}catch(e){toast(e.message)}};
 el("saveAllAnalyses").onclick=saveAllAnalyses;
+el("inspectNow").onclick=()=>{try{renderInspector()}catch(e){toast(e.message)}};
+el("inspectNumber").addEventListener("change",()=>{try{renderInspector()}catch(e){toast(e.message)}});
+el("inspectBand").addEventListener("change",()=>{try{renderInspector()}catch(e){toast(e.message)}});
 el("testNow").onclick=backtest;
 el("labSaved").addEventListener("change",e=>{
  const key=e.target.dataset.poolKey;if(!key)return;
