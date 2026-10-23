@@ -4,8 +4,8 @@ import {generateCoupons,clubContest,hexKey} from "./coupon-engine.mjs";
 const el=id=>document.getElementById(id);
 const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 const balls=(a,hits=[])=>a.map(n=>'<span class="lab-ball '+(hits.includes(n)?"hit":"")+'">'+n+'</span>').join("");
-const STORAGE={analysis:"loto-analysis-saved-v1",math:"loto-tahmin-saved-v1",coupons:"loto-coupon-history-v1",history:"loto-coupon-seen-v1",club:"loto-club-history-v1"};
-const state={draws:null,ctx:null,selection:new Set(["dna","limit","matrix","hot"]),results:[],saved:[],math:[],chosen:new Set(),combined:[],coupons:null,couponHistory:[],seen:[],club:null,clubHistory:[]};
+const STORAGE={analysis:"loto-analysis-saved-v1",math:"loto-tahmin-saved-v1",coupons:"loto-coupon-history-v1",history:"loto-coupon-seen-v1",club:"loto-club-history-v1",customTeams:"loto-custom-club-teams-v1"};
+const state={draws:null,ctx:null,selection:new Set(["dna","limit","matrix","hot"]),results:[],saved:[],math:[],chosen:new Set(),combined:[],coupons:null,couponHistory:[],seen:[],club:null,clubHistory:[],customTeams:[]};
 const fmt=x=>Number(x).toLocaleString("tr-TR",{maximumFractionDigits:2});
 function store(key,content){try{localStorage.setItem(key,JSON.stringify(content))}catch{}}
 function recall(key){try{return JSON.parse(localStorage.getItem(key)||"null")}catch{return null}}
@@ -69,6 +69,7 @@ function loadSaved(){
  state.couponHistory=Array.isArray(recall(STORAGE.coupons))?recall(STORAGE.coupons):[];
  state.seen=Array.isArray(recall(STORAGE.history))?recall(STORAGE.history):[];
  state.clubHistory=Array.isArray(recall(STORAGE.club))?recall(STORAGE.club):[];
+ state.customTeams=Array.isArray(recall(STORAGE.customTeams))?recall(STORAGE.customTeams):[];
 }
 function allSaved(){
  return [...state.saved,...state.math.map(m=>({...m,name:"∑ "+(m.name||"Matematik"),kind:"matematik",pool:sortedUnique(m.pool||[])}))];
@@ -179,13 +180,25 @@ function downloadCoupons(){
  dl("kuponlar_"+r.target+".csv",rows.join("\r\n"),"text/csv;charset=utf-8");
 }
 function drawTeams(){
- el("clubTeams").innerHTML=CLUB.map(t=>'<div class="lab-team"><strong>♜ '+t.name+'</strong><small>'+
+ const teams=[...CLUB,...state.customTeams];
+ el("clubTeams").innerHTML=teams.map(t=>'<div class="lab-team"><strong>♜ '+esc(t.name)+'</strong><small>'+
    t.modules.map(id=>MODULES.find(m=>m.id===id)?.name||id).join(" · ")+'</small></div>').join("");
+ el("clubCustomTeams").innerHTML=state.customTeams.length?state.customTeams.map(t=>
+  '<div class="lab-saved-row"><span><b>'+esc(t.name)+'</b><small>'+t.modules.map(id=>esc(MODULES.find(m=>m.id===id)?.name||id)).join(" + ")+'</small></span>'+
+  '<button type="button" data-remove-club="'+esc(t.id)+'">Sil</button></div>').join(""):'<p class="lab-muted">İstersen kendine özel yarışmacılar oluşturabilirsin.</p>';
+}
+function addClubTeam(){
+ const ids=[...state.selection];if(!ids.length)return toast("Takım için en az bir analiz seç.");
+ const name=el("clubCustomName").value.trim()||"Benim Sistem "+(state.customTeams.length+1);
+ if(state.customTeams.length>=12)return toast("En fazla 12 özel yarışmacı oluşturabilirsin.");
+ state.customTeams.push({id:"custom-"+Date.now(),name,modules:ids});
+ store(STORAGE.customTeams,state.customTeams);drawTeams();el("clubCustomName").value="";
+ toast("Yeni sistem kulübe eklendi.");
 }
 async function runClub(){
  const ctx=getCtx(),period=Number(el("clubPeriod").value),seed=Number(el("clubSeed").value),btn=el("runClub");
  btn.disabled=true;btn.textContent="Sistemler yarıştırılıyor…";await new Promise(r=>setTimeout(r,20));
- try{state.club=clubContest(state.draws,{target:ctx.target,window:ctx.window,period,seed});drawClub();toast("Kulüp sonuçları hesaplandı.")}
+ try{state.club=clubContest(state.draws,{target:ctx.target,window:ctx.window,period,seed,teams:[...CLUB,...state.customTeams]});drawClub();toast("Kulüp sonuçları hesaplandı.")}
  catch(e){toast("Yarışma hatası: "+e.message)}
  finally{btn.disabled=false;btn.textContent="♜ Sistemleri yarıştır"}
 }
@@ -247,6 +260,12 @@ el("couponHistory").addEventListener("click",e=>{
  if(i===undefined)return;
  const saved=state.couponHistory[Number(i)];if(!saved)return;
  state.coupons=saved;renderCoupons();el("couponResult").scrollIntoView({behavior:"smooth",block:"start"});
+});
+el("addClubTeam").onclick=addClubTeam;
+el("clubCustomTeams").addEventListener("click",e=>{
+ const id=e.target.closest("[data-remove-club]")?.dataset.removeClub;if(!id)return;
+ state.customTeams=state.customTeams.filter(t=>t.id!==id);
+ store(STORAGE.customTeams,state.customTeams);drawTeams();
 });
 el("runClub").onclick=runClub;
 el("saveClub").onclick=saveClub;
