@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <meta name="description" content="975 gerçek Süper Loto çekilişiyle esnek matematiksel strateji laboratuvarı.">
+  <title>Loto Tahmin · Strateji Laboratuvarı</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div class="brand">
+        <div class="brand-icon">◈</div>
+        <div>
+          <div class="overline">SÜPER LOTO · MATEMATİK LABORATUVARI</div>
+          <h1>Loto <em>Tahmin</em></h1>
+        </div>
+      </div>
+      <span class="status" id="dataStatus"><i></i> Arşiv yükleniyor</span>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div>
+          <span class="eyebrow">KENDİ STRATEJİNİ KUR</span>
+          <h2>Her işlem ayrı.<br><span>Kontrol tamamen sende.</span></h2>
+          <p>Böleni, çarpanı, adım sayısını değiştir. Seçilen gerçek çekilişleri ve eşleşmeleri anında gör. İstediğin havuzları birbiriyle karşılaştır.</p>
+        </div>
+        <div class="intro-numbers">
+          <div><strong id="statDraws">—</strong><span>Çekiliş</span></div>
+          <div><strong>5</strong><span>İşlem türü</span></div>
+          <div><strong>∞</strong><span>Deneme fikri</span></div>
+        </div>
+      </section>
+
+      <section class="workbench" aria-labelledby="setupTitle">
+        <div class="panel-heading"><span class="step-counter">01</span><div><h3 id="setupTitle">Stratejini kur</h3><p>Bir işlem seç, kendi değerlerini gir ve çalıştır.</p></div></div>
+        <div class="targetbar">
+          <label for="targetInput">Hedef çekiliş numarası</label>
+          <div class="target-input"><span>#</span><input id="targetInput" type="number" min="2" max="975" value="975" inputmode="numeric"></div>
+          <div id="targetNumbers" class="target-numbers"><span class="muted">Gerçek çekilişin 6 sayısı yükleniyor…</span></div>
+        </div>
+
+        <div class="mode-tabs" id="modeTabs" role="tablist" aria-label="İşlem türü">
+          <button type="button" class="tab active" data-mode="add" aria-selected="true"><span>＋</span> Toplama</button>
+          <button type="button" class="tab" data-mode="divide" aria-selected="false"><span>÷</span> Bölme</button>
+          <button type="button" class="tab" data-mode="multiply" aria-selected="false"><span>×</span> Çarpma</button>
+          <button type="button" class="tab" data-mode="divisors" aria-selected="false"><span>↗</span> Artan bölen</button>
+          <button type="button" class="tab" data-mode="subtract" aria-selected="false"><span>−</span> Çıkarma</button>
+        </div>
+
+        <form id="strategyForm">
+          <div class="form-grid">
+            <div class="field" data-field="seedDivisor"><label for="seedDivisor">Başlangıç böleni <small>(hedef ÷ ?)</small></label><input id="seedDivisor" type="text" inputmode="decimal" value="100"></div>
+            <div class="field hidden" data-field="divisor"><label for="divisor">Bölen <small>(hedef ÷ ?)</small></label><input id="divisor" type="text" inputmode="decimal" value="2"></div>
+            <div class="field hidden" data-field="factor"><label for="factor">Her tur çarpan</label><input id="factor" type="text" inputmode="decimal" value="2"></div>
+            <div class="field hidden" data-field="increment"><label for="increment">Böleni artır <small>(her adım)</small></label><input id="increment" type="text" inputmode="decimal" value="1"></div>
+            <div class="field hidden" data-field="amount"><label for="amount">Her tur çıkarılacak değer</label><input id="amount" type="text" inputmode="decimal" value="100"></div>
+            <div class="field"><label for="stepCount">Kaç adım?</label><input id="stepCount" type="number" min="1" max="975" inputmode="numeric" value="10"></div>
+            <div class="field span-two" data-field="addCustom">
+              <label class="checkline"><input type="checkbox" id="addCustom"> İlk çıkan sonucu değil, kendi yazdığım değeri ekle</label>
+              <input class="hidden alt-input" id="addValue" type="text" value="10" inputmode="decimal" aria-label="Özel eklenecek değer">
+            </div>
+          </div>
+          <div class="rule-line"><span>⌁</span> <strong>Sınır koruma açık:</strong> Küsürlü paylar iki tarafta da yukarı tamamlanır. Gerektiğinde 7 sayı seçilir.</div>
+          <div class="form-actions">
+            <button type="submit" class="primary">▶ Stratejiyi çalıştır</button>
+            <button type="button" id="exampleAdd" class="secondary">975 · İlk 10 toplama</button>
+            <button type="button" id="exampleDivide" class="secondary">975 · 9 bölme</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="results hidden" id="resultsArea" aria-labelledby="resultsTitle">
+        <div class="panel-heading"><span class="step-counter">02</span><div><h3 id="resultsTitle">Adım adım sonuçlar</h3><p id="resultCaption">Seçilen referanslar ve gerçek çekiliş sayıları</p></div></div>
+        <div class="metrics" id="resultMetrics"></div>
+        <div class="result-head">
+          <div><strong>Havuzun sayıları</strong><small id="poolCount"></small></div>
+          <button class="ghost" type="button" id="exportSteps">↓ Adımları CSV indir</button>
+        </div>
+        <div class="number-grid" id="poolNumbers"></div>
+        <div class="table-scroller">
+          <table class="step-table">
+            <thead><tr><th>Adım / Referans</th><th>Çekilişten alınan</th><th>Seçilen gerçek sayılar</th><th>Eşleşme</th><th>Birikimli</th></tr></thead>
+            <tbody id="stepRows"></tbody>
+          </table>
+        </div>
+        <div class="alert hidden" id="strategyWarning"></div>
+        <div class="save-row">
+          <label class="save-input"><span>Havuza isim ver</span><input id="strategyName" type="text" placeholder="Örn. 975 · 10 adım toplama" maxlength="65"></label>
+          <button type="button" class="primary" id="saveStrategy">＋ Bu stratejiyi kaydet</button>
+        </div>
+      </section>
+
+      <section class="compare" aria-labelledby="compareTitle">
+        <div class="panel-heading"><span class="step-counter">03</span><div><h3 id="compareTitle">Kaydedilen stratejiler</h3><p>İki veya daha fazla stratejiyi karşılaştır; ortak sayılarını anında gör.</p></div></div>
+        <div id="savedStrategies" class="saved-list"><p class="empty">Henüz kayıt yok. Bir stratejiyi çalıştırıp <strong>Bu stratejiyi kaydet</strong> düğmesine dokun.</p></div>
+        <div class="compare-controls">
+          <label class="radio-pill"><input type="radio" name="combine" value="intersection" checked><span>∩ Ortak sayılar</span></label>
+          <label class="radio-pill"><input type="radio" name="combine" value="union"><span>∪ Hepsini birleştir</span></label>
+        </div>
+        <div class="compare-stats" id="compareStats"></div>
+        <div id="combinedNumbers" class="number-grid"></div>
+
+        <details class="filters" id="filterDetails">
+          <summary><span>⚙ Havuz filtreleri</span><span class="subtle">İsteğe bağlı · aç / kapat</span></summary>
+          <div class="filter-body">
+            <label class="checkline"><input type="checkbox" id="frequencyEnabled"> Son N çekilişte fazla gelenleri ele</label>
+            <div class="filter-row"><label>Son kaç çekiliş?<input id="lookback" type="number" min="1" max="975" value="10"></label><label>Kaç kez ve üstü?<input id="threshold" type="number" min="1" value="3"></label></div>
+            <label class="checkline"><input type="checkbox" id="excludeLatest"> Hedeften önceki son çekilişin tüm sayılarını ele</label>
+            <label class="field compact"><span>Şu çekilişlerin sayılarını ele <small>(örn. 845, 844)</small></span><input id="excludeDraws" type="text" placeholder="845, 844"></label>
+            <label class="field compact"><span>Elle eleme <small>(örn. 7, 35)</small></span><input id="excludeNumbers" type="text" placeholder="7, 35"></label>
+            <div class="rule-line">Filtreler yalnızca hedef çekilişten önceki gerçek verilere bakar. Kaynak havuzlar değişmez.</div>
+          </div>
+        </details>
+        <div id="filteredResult" class="filtered-result hidden"></div>
+        <div class="form-actions"><button class="secondary" type="button" id="exportComparison">↓ Ortak havuzu TXT indir</button><button class="ghost danger" type="button" id="clearSaved">Kayıtları temizle</button></div>
+      </section>
+
+      <section class="archive" aria-labelledby="archiveTitle">
+        <div class="panel-heading"><span class="step-counter">04</span><div><h3 id="archiveTitle">Çekiliş arşivi</h3><p>Uygulamada senin gönderdiğin 975 çekiliş hazır; istersen TXT'yi değiştirebilirsin.</p></div></div>
+        <div class="archive-toolbar">
+          <label class="file-button" for="fileInput">↑ TXT dosyası yükle <input type="file" id="fileInput" accept=".txt,text/plain"></label>
+          <a class="secondary link-button" href="./data/draws.txt" download>↓ 975 çekilişi indir</a>
+        </div>
+        <div class="archive-preview" id="archivePreview"></div>
+      </section>
+      <footer>LOTО TAHMİN · Geçmişteki eşleşmeler gelecekteki sonuçları garanti etmez. Büyük havuz = tek kupon değildir. <span>Veriler cihazında işlenir.</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
