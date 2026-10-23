@@ -4,6 +4,7 @@ Kullanıcının sağladığı **975 gerçek Süper Loto çekilişi** üzerinde �
 
 ## Kullanım
 - `index.html` web sayfasını açın veya GitHub Pages ile `main / (root)` klasörünü yayımlayın.
+- Hedef numarası geçmişteki veya henüz çekilmemiş bir çekiliş olabilir (ör. **976**). Hedef sonucu olmadan da aynı matematikle aday havuzu hesaplanır; eşleşmeler **Sonuç bekleniyor** olarak gösterilir. Sayılar yalnızca hedef öncesindeki gerçek arşiv kayıtlarından alınır. Eksik kaynak çekiliş varsa açıklama gösterilir; sayı uydurulmaz.
 - **Bölme**, **Çarpma**, **Sabit Ekleme**, **Artan Bölenler** ve **Çıkarma** bölümlerinde istediğiniz bölen/çarpan/adım sayısını ayarlayın.
 - **Havuzları kaydet**; iki veya daha fazla stratejiyi **ortak/kesişim** ya da **birleşim** şeklinde kıyaslayın.
 - **Filtreler** üzerinden son N çekilişte en az X kez görünen sayıları, tekil çekilişleri veya seçtiğiniz rakamları çıkarın.

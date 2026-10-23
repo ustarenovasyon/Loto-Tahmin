@@ -99,10 +99,11 @@ export function sequenceReference(config,index,target){
 }
 export function runStrategy(config,draws,target){
   target=Number(target);
-  if(!Number.isSafeInteger(target)||target<2||!draws.has(target))throw Error("Hedef çekiliş arşivde bulunmalı ve 1'den büyük olmalı.");
+  if(!Number.isSafeInteger(target)||target<2)throw Error("Hedef çekiliş numarası 1'den büyük bir tam sayı olmalı.");
   const requested=Number(config.count??10);
   if(!Number.isInteger(requested)||requested<1||requested>MAX_STEPS)throw Error("Adım sayısı 1–"+MAX_STEPS+" arasında olmalı.");
-  const targetNums=draws.get(target).numbers, targetSet=new Set(targetNums);
+  const hasTargetResult=draws.has(target);
+  const targetNums=draws.get(target)?.numbers??[], targetSet=new Set(targetNums);
   const selected=new Set(),steps=[],seen=new Set(),warnings=[];
   for(let i=0;i<requested;i++){
     const ref=sequenceReference(config,i,target), refStr=displayFraction(ref,12);
@@ -117,7 +118,7 @@ export function runStrategy(config,draws,target){
     hits.forEach(n=>seen.add(n));
     steps.push({step:i+1,reference:refStr,...pick,newNumbers,hits,cumulativeHits:[...seen].sort((a,b)=>a-b),cumulativeUnique:selected.size});
   }
-  return {config:{...config},target,targetNumbers:targetNums,steps,pool:[...selected].sort((a,b)=>a-b),totalPicked:steps.reduce((s,r)=>s+r.numbers.length,0),hits:[...selected].filter(n=>targetSet.has(n)).sort((a,b)=>a-b),warnings};
+  return {config:{...config},target,hasTargetResult,targetNumbers:targetNums,steps,pool:[...selected].sort((a,b)=>a-b),totalPicked:steps.reduce((s,r)=>s+r.numbers.length,0),hits:[...selected].filter(n=>targetSet.has(n)).sort((a,b)=>a-b),warnings};
 }
 export function parseNumberList(input){return [...new Set(String(input??"").match(/\d+/g)?.map(Number)??[])].filter(n=>Number.isInteger(n))}
 export function filterPool(pool,draws,target,options={}){

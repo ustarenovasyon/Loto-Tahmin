@@ -69,3 +69,62 @@ test("filter recent N draws and exclude last draw without using target",()=>{
  assert.ok(res.remaining.every(n=>!archive.get(845).numbers.includes(n)));
  assert.ok(res.remaining.every(n=>![9,32,35].includes(n)));
 });
+
+const strategies=[
+ {mode:"add",seedDivisor:"100",count:10},
+ {mode:"divide",divisor:"2",count:9},
+ {mode:"multiply",seedDivisor:"100",factor:"2",count:7},
+ {mode:"divisors",divisor:"2",increment:"1",count:18},
+ {mode:"subtract",amount:"100",count:8}
+];
+test("all five strategies support future draws using only archived sources",()=>{
+ for(const target of [976,977,1000])for(const config of strategies){
+  const r=runStrategy(config,archive,target);
+  assert.equal(r.hasTargetResult,false);
+  assert.deepEqual(r.targetNumbers,[]);
+  assert.deepEqual(r.hits,[]);
+  assert.equal(r.steps.length,config.count);
+  assert.ok(r.pool.length>0);
+  for(const step of r.steps){
+   assert.ok(step.lowerId<target&&archive.has(step.lowerId));
+   assert.ok(step.upperId===null||(step.upperId<target&&archive.has(step.upperId)));
+  }
+ }
+});
+test("976 / 100 multiplied by two preserves exact references and both border shares",()=>{
+ const r=runStrategy(strategies[2],archive,976);
+ assert.deepEqual(r.steps.map(s=>s.reference),["9,76","19,52","39,04","78,08","156,16","312,32","624,64"]);
+ assert.deepEqual(r.steps.map(s=>[s.lowerCount,s.upperCount]),[[2,5],[3,4],[6,1],[6,1],[6,1],[5,2],[3,4]]);
+ assert.equal(r.totalPicked,49);
+ assert.deepEqual(r.steps[0].numbers,[...archive.get(9).numbers.slice(-2),...archive.get(10).numbers.slice(0,5)]);
+});
+test("withholding a real target result changes scoring only, never the candidate pool",()=>{
+ const hidden=new Map(archive);hidden.delete(975);
+ for(const config of strategies){
+  const past=runStrategy(config,archive,975),blind=runStrategy(config,hidden,975);
+  assert.equal(past.hasTargetResult,true);
+  assert.equal(blind.hasTargetResult,false);
+  assert.deepEqual(blind.pool,past.pool);
+  assert.deepEqual(blind.steps.map(s=>s.numbers),past.steps.map(s=>s.numbers));
+ }
+});
+test("future mode still blocks target, future and missing source draws",()=>{
+ const self=runStrategy({mode:"divide",divisor:"1",count:1},archive,976);
+ assert.equal(self.steps.length,0);
+ assert.match(self.warnings.join(" "),/hedef/);
+ const boundary=runStrategy({mode:"subtract",amount:"0.5",count:1},archive,976);
+ assert.equal(boundary.steps.length,0);
+ const unavailable=runStrategy({mode:"subtract",amount:"1",count:2},archive,977);
+ assert.equal(unavailable.steps.length,0);
+ assert.match(unavailable.warnings.join(" "),/976.*arşivde yok/);
+ const last=runStrategy({mode:"subtract",amount:"1",count:1},archive,976);
+ assert.deepEqual(last.pool,archive.get(975).numbers);
+});
+test("future filters use the latest completed draw and invalid targets are rejected",()=>{
+ const r=runStrategy(strategies[2],archive,976);
+ const filtered=filterPool(r.pool,archive,976,{excludeLatest:true});
+ assert.deepEqual(filtered.remaining,r.pool.filter(n=>!archive.get(975).numbers.includes(n)));
+ for(const target of [0,1,-2,976.5,NaN,Infinity,Number.MAX_SAFE_INTEGER+1]){
+  assert.throws(()=>runStrategy(strategies[2],archive,target),/tam sayı/);
+ }
+});
