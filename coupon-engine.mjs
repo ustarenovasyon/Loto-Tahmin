@@ -69,10 +69,10 @@ export function generateCoupons({ctx,moduleIds,count=5,limit=18,manualPool=[],st
  }));
  return {target:ctx.target,ids,limit,manualPool:manual,strict,seed,created:new Date().toISOString(),coupons:all,details,skipped};
 }
-export function clubContest(draws,{target,window=100,period=30,seed=4719}){
+export function clubContest(draws,{target,window=100,period=30,seed=4719,teams=CLUB}){
  const maximum=Math.max(...draws.keys());
  if(!Number.isInteger(target)||target<2||target>maximum+1)throw Error("Geçersiz hedef.");
- const records=CLUB.map(team=>({id:team.id,name:team.name,modules:team.modules,
+ const records=teams.map(team=>({id:team.id,name:team.name,modules:team.modules,
   hitCounts:[0,0,0,0,0,0,0],totalHits:0,runs:0,rows:[],next:[]}));
  const start=Math.max(30,target-Math.min(150,Math.max(5,Number(period))));
  for(let id=start;id<target;id++){
