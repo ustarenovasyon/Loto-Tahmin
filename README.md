@@ -22,6 +22,26 @@ Ondalık referans `r = tam + f` için:
 
 İşlemlerde kayan nokta hatası olmaması için kesirler BigInt tabanlı rasyonel olarak hesaplanır. Varsayılan olarak hedef çekiliş ve sonrasından sayı alınmaz. Geçmişe dönük havuzda sayı bulunması gelecek çekiliş için başarı garantisi değildir.
 
+## Kazananlar Kulübü · Ortak Sayılar
+
+Ayrı sayfa: [Kulüp Ortak Sayılar](./club-compare.html)
+
+**Kupon oluşturmadan önce bağımsız sistemler ile kullanıcının kendi havuzunun ortak sayılarını karşılaştırır.**
+
+- Kendi matematik/analiz havuzunu yerel kayıtlardan seç veya 1–60 arasından doğrudan sayı yaz.
+- 6 hazır bağımsız kulüp sistemini ve kayıtlı özel sistemlerini yeniden çalıştır.
+- Her sistem için 12/24/50/100 farklı örnek kolon üret.
+- Her satıra altılı yazarak dış sistemden **kullanıcının kendisinin sağladığı** tahmin kolonlarını ekle. Kaynaklar isim, hedef ve altılılarıyla ayrı saklanır. Örnek DELTA/FLEX/SPOT isimlerinin bulunması, gerçek tahminlerinin otomatik erişildiği anlamına gelmez.
+- Sistem başına ilk 6/10/12/15/20/30 güçlü sayı veya o sistemin tüm görülenlerini seç.
+- En az K ayrı sistemle ortaklık, bütün sistemlerin tam kesişimi, en az bir sistemde görülenler ya da yalnız kendi havuzunda kalanlar.
+- Her sayı için destekleyen sistemler ve örnek kolonlarda tekrar oranı, sistem başına en iyi altılı örtüşmeleri.
+- Ortak havuzu kaydet veya tek tuşla Kupon Atölyesi'nde seçilmiş kaynak olarak aç.
+- Dışarıdan eklediğin kolon kaynakları cihazındaki analiz yedeğine dahildir.
+
+**Harici kaynak sınırı:** LotoTürkiye kendi tahminlerinin yeniden yayımlanmasını yasaklar; bu uygulama siteyi otomatik kazımaz ve gerçek resmî DELTA/FLEX/SPOT tahminlerini sağlıyormuş gibi davranmaz. Doğrudan üretilen tahminler açık kurallı özgün kulüp sistemlerimizindir. Dış sistem verisi yalnızca kullanıcının kendisinin sağladığı kolonlardır. Kaynak örnekleri bütün sistemin tahmin evrenini temsil etmeyebilir.
+
+**Önemli:** Bir kolon ile 4 veya 5 `ortak havuz sayısı` olması, gelecekteki çekilişte 4 veya 5 gerçek isabet olacağı anlamına gelmez.
+
 ## Analiz Merkezi — özgün modüler analiz platformu
 
 Ana matematik sayfasındaki **Analiz Merkezi'ni Aç** bağlantısından veya doğrudan `lab.html` ile erişilir.
