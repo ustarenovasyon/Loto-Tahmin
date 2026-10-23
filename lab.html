@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11253d"><meta name="description" content="Süper Loto için manuel matematik, dönemsel, sıralı ve grup analiz laboratuvarı">
+<title>Loto Tahmin · Analiz Merkezi</title>
+<link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./lab.css">
+</head><body><main class="lab-shell">
+<header class="lab-nav"><a class="lab-logo" href="./index.html">◈ <strong>LOTO TAHMİN</strong></a><nav><a href="./index.html">∑ Matematik</a><a href="#analyzer">◉ Analiz</a><a href="#coupons">✣ Kupon</a><a href="#club">♜ Kulüp</a></nav></header>
+<section class="lab-hero"><span class="lab-eyebrow">975 GERÇEK ÇEKİLİŞ · 25 BAĞIMSIZ ANALİZ MODÜLÜ</span>
+<h1>Analiz <span>Merkezi</span></h1>
+<p>Kendi matematiksel stratejilerin yanında süre, sayı adedi, DNA, matriks, grup ve sıralı analizlerini ayrı ayrı çalıştır. Kaydet, birleştir, geçmişte kontrol et ve seçtiklerinle yeni kupon çalışması oluştur.</p>
+<div class="lab-hero-actions"><a href="#analyzer" class="lab-button primary">Analize başla ↘</a><a href="#guide" class="lab-button outline">Nasıl kullanılır?</a></div>
+</section>
+<div class="lab-status" id="labStatus">975 çekilişlik arşiv yükleniyor…</div>
+<section class="lab-panel" id="analyzer">
+<div class="lab-panel-heading"><span class="lab-step">01</span><div><h2>Analiz araçları</h2><p>Çalışmasını istediğin analizleri tek tek seçebilir, birden fazlasını birlikte çalıştırabilirsin.</p></div></div>
+<div class="lab-grid four"><label>Hedef çekiliş #<input id="labTarget" type="number" value="976" min="2" inputmode="numeric"></label>
+<label>Kaç geçmiş çekiliş?<select id="labWindow"><option value="20">Son 20</option><option value="30">Son 30</option><option value="50">Son 50</option><option value="100" selected>Son 100</option><option value="200">Son 200</option><option value="500">Son 500</option><option value="975">Tüm geçmiş</option></select></label>
+<label>Her analiz kaç sayı ayırsın?<input id="labLimit" type="number" value="18" min="6" max="60"></label>
+<label>Geçmiş test adedi<select id="labTestCount"><option value="10">10 çekiliş</option><option value="20" selected>20 çekiliş</option><option value="50">50 çekiliş</option><option value="100">100 çekiliş</option></select></label></div>
+<div class="lab-minirow"><button id="selectAll" type="button">Tümünü seç</button><button id="deselectAll" type="button">Seçimi temizle</button><span id="selectedSummary">0 analiz seçildi</span></div>
+<div class="lab-module-list" id="labModules"></div>
+<div class="lab-actions"><button class="lab-button primary" id="analyzeNow">◉ Seçilen analizleri çalıştır</button><button class="lab-button soft" id="testNow">▤ Geçmişte kontrol et</button></div>
+<div class="lab-results" id="labResults"><p class="lab-empty">İlk analiz için yukarıdan bir veya birkaç modül seçip çalıştır.</p></div>
+<div id="labBacktest" class="lab-small-results"></div>
+</section>
+
+<section class="lab-panel" id="pool">
+<div class="lab-panel-heading"><span class="lab-step">02</span><div><h2>Havuzlarım · ortak çalışma masası</h2><p>Her analiz kendi sonuçlarını kaydetsin; matematik ekranındaki kayıtların da burada görünsün.</p></div></div>
+<div class="lab-grid two"><label>Havuzları nasıl birleştirelim?<select id="labCombine"><option value="union">Birleşim · tüm farklı sayılar</option><option value="intersection">Kesişim · hepsinde ortak sayılar</option></select></label>
+<label>Çalışma adı<input id="labPoolName" placeholder="Örn. DNA + Limit + Matriks" maxlength="80"></label></div>
+<div class="lab-saved-list" id="labSaved"></div>
+<div class="lab-actions"><button class="lab-button primary" id="combineNow">↗ Seçili havuzları birleştir</button><button class="lab-button soft" id="saveCombined">＋ Birleşimi kaydet</button><button class="lab-button soft" id="downloadPool">↓ TXT indir</button></div>
+<div id="labCombined"><p class="lab-empty">Kaydedilmiş havuzlardan karşılaştırmak istediklerini işaretle.</p></div>
+</section>
+
+<section class="lab-panel" id="coupons">
+<div class="lab-panel-heading"><span class="lab-step">03</span><div><h2>Otomatik kupon atölyesi</h2><p>Bu bölüm rastgele ayar aramaz. Senin seçtiğin analizleri birlikte çalıştırarak her isteğinde yeni altılı kuponlar oluşturur.</p></div></div>
+<div class="lab-grid three"><label>Kaç kupon istersin?<input type="number" id="couponCount" min="1" max="100" value="5"></label>
+<label>Kullanılacak havuz<select id="couponPool"><option value="">Sadece seçtiğim analizler</option></select></label>
+<label>Havuz kısıtı<select id="couponStrict"><option value="soft">Yumuşak · dışarıdan sayı gelebilir</option><option value="strict">Sıkı · yalnızca havuz sayıları</option></select></label></div>
+<div class="lab-note">Yukarıdaki analiz seçimlerini kullanır. Birden fazla analiz seçilirse birlikte puanlar; tüm kuponların aynı olmamasına ve sayısal dağılıma dikkat eder. **4 veya 5 bilme garantisi yoktur.**</div>
+<div class="lab-actions"><button class="lab-button primary" id="makeCoupons">✣ Yeni kupon çalışması oluştur</button><button class="lab-button soft" id="saveCoupons">＋ Kuponları kaydet</button><button class="lab-button soft" id="downloadCoupons">↓ CSV indir</button></div>
+<div id="couponResult"></div><h3 class="lab-subtitle">Kayıtlı kupon çalışmalarım</h3><div id="couponHistory"></div>
+</section>
+
+<section class="lab-panel" id="club">
+<div class="lab-panel-heading"><span class="lab-step">04</span><div><h2>Sistemler Kulübü · yarışma</h2><p>Bağımsız altı sistem farklı analiz gruplarıyla yarışır. Aynı çekilişlerde 6 sayılık birer tahminle değerlendirilir.</p></div></div>
+<div id="clubTeams" class="lab-team-strip"></div>
+<div class="lab-grid two"><label>Geçmiş yarışma aralığı<select id="clubPeriod"><option value="10">10 çekiliş</option><option value="20" selected>20 çekiliş</option><option value="30">30 çekiliş</option><option value="50">50 çekiliş</option></select></label>
+<label>Tekrar üretilebilir yarışma numarası<input id="clubSeed" type="number" value="4719"></label></div>
+<div class="lab-actions"><button class="lab-button primary" id="runClub">♜ Sistemleri yarıştır</button><button class="lab-button soft" id="saveClub">＋ Yarışmayı kaydet</button></div>
+<div id="clubResult"></div>
+</section>
+
+<section class="lab-panel" id="guide">
+<div class="lab-panel-heading"><span class="lab-step">05</span><div><h2>Kullanım rehberi</h2><p>Hem hızlı kullanım hem de hesaplamaların ne yaptığını görebileceğin adımlar.</p></div></div>
+<div class="lab-guide">
+<details open><summary>1 · Önce kendi matematiksel havuzunu oluştur</summary><p>Matematik sayfasında istediğin çekiliş ve bölme/çarpma/toplama yöntemlerini çalıştır; havuzu kaydet. Buraya döndüğünde “Havuzlarım” bölümünde otomatik görünür.</p><a href="./index.html">Manuel matematik laboratuvarı →</a></details>
+<details><summary>2 · Analizleri ayrı ayrı çalıştır ve karşılaştır</summary><p>DNA dönemler arasındaki sayım farkını, Limit bekleme aralıklarını, Matriks dört grubu; sıralı analizler toplam/tek-çift/onlu dağılımları ölçer. Her modülün sonucu kaydedilebilir.</p></details>
+<details><summary>3 · Eleme sırası: geniş havuz → süzgeç → kupon</summary><p>Önce manuel havuzu sakla. Daha sonra 2–5 farklı analizi uygula. “Birleşim” farklı adayları korur, “Kesişim” ortakları daraltır. Kesişim çok daralıyorsa geriye dönüp kısıtları gevşet.</p></details>
+<details><summary>4 · Hedef çekiliş ve testin doğru kullanımı</summary><p>Hedef #976 iken veri olarak yalnızca #975 ve öncesi kullanılır. Geçmişte örneğin #846'yı seçerseniz #846 ve sonrasına kesinlikle bakılmaz; gerçekleşmiş sonuç yalnızca isabeti göstermek için ayrıca açılır. Geçmişte yüksek isabetin geleceğe taşınacağı varsayılmamalıdır.</p></details>
+<details><summary>5 · Otomatik kupon ve bağımsız sistemler</summary><p>Kupon atölyesinde kaç kupon istediğini ve hangi analizlerin seçili olduğunu belirle. Her seferinde yeni çalışma oluşur. Kulüpte ise sistemlerin kural kümeleri sabittir, seçilen geçmiş dönemdeki sonuçları karşılaştırılır; otomatik eğitim veya parametre tarama yapılmaz.</p></details>
+<details><summary>6 · LotoTürkiye'yle ilişki</summary><p>Bu, LotoTürkiye'nin kapalı formüllerinin kopyası değildir. Kamuya açıklanan analiz kavramlarından esinlenen bağımsız, kaynak kodu okunabilir matematiksel uygulamadır. Orijinal adlarıyla aynı sonuçları verme iddiası yoktur.</p></details>
+</div></section>
+<footer class="lab-footer">Loto Tahmin · İstatistik analiz aracıdır. Kupon satın alma veya ikramiye garantisi sunmaz. · Veriler cihazının tarayıcısında işlenir.</footer>
+<div id="labToast" class="lab-toast" role="status" aria-live="polite"></div>
+</main><script type="module" src="./lab-ui.mjs"></script></body></html>
