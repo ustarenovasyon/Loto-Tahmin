@@ -1,11 +1,11 @@
 import {parseArchive} from "./engine.mjs";
-import {MODULES,CLUB,buildContext,analyze,compareAnalysisSets,assessPool,historicalCheck,sortedUnique} from "./analysis-engine.mjs";
+import {MODULES,CLUB,buildContext,analyze,compareAnalysisSets,assessPool,historicalCheck,sortedUnique,filterPipeline} from "./analysis-engine.mjs";
 import {generateCoupons,clubContest,hexKey} from "./coupon-engine.mjs";
 const el=id=>document.getElementById(id);
 const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 const balls=(a,hits=[])=>a.map(n=>'<span class="lab-ball '+(hits.includes(n)?"hit":"")+'">'+n+'</span>').join("");
 const STORAGE={analysis:"loto-analysis-saved-v1",math:"loto-tahmin-saved-v1",coupons:"loto-coupon-history-v1",history:"loto-coupon-seen-v1",club:"loto-club-history-v1",customTeams:"loto-custom-club-teams-v1"};
-const state={draws:null,ctx:null,selection:new Set(["dna","limit","matrix","hot"]),results:[],saved:[],math:[],chosen:new Set(),combined:[],coupons:null,couponHistory:[],seen:[],club:null,clubHistory:[],customTeams:[]};
+const state={draws:null,ctx:null,selection:new Set(["dna","limit","matrix","hot"]),results:[],saved:[],math:[],chosen:new Set(),combined:[],coupons:null,couponHistory:[],pipeline:null,seen:[],club:null,clubHistory:[],customTeams:[]};
 const fmt=x=>Number(x).toLocaleString("tr-TR",{maximumFractionDigits:2});
 function store(key,content){try{localStorage.setItem(key,JSON.stringify(content))}catch{}}
 function recall(key){try{return JSON.parse(localStorage.getItem(key)||"null")}catch{return null}}
@@ -57,6 +57,12 @@ function makeSavedEntry(name,pool,moduleIds){
   target:getSettings().target,name,pool:sortedUnique(pool),moduleIds:[...moduleIds],
   created:new Date().toISOString(),kind:"analiz"};
 }
+function saveAllAnalyses(){
+ if(!state.results.length)return toast("Önce analizleri çalıştır.");
+ for(const r of state.results)state.saved.unshift(makeSavedEntry(r.name+" · #"+r.target,r.selected,[r.id]));
+ state.saved=state.saved.slice(0,150);store(STORAGE.analysis,state.saved);drawSaved();
+ toast(state.results.length+" ayrı analiz sonucu kaydedildi.");
+}
 function saveModule(id){
  const r=state.results.find(x=>x.id===id);if(!r)return;
  state.saved.unshift(makeSavedEntry(r.name+" · #"+r.target,r.selected,[id]));
@@ -84,10 +90,15 @@ function drawSaved(){
    (m.kind==="matematik"?"Matematik":"Analiz")+' · #'+m.target+' · '+m.pool.length+' sayı'+(!eligible?" · Farklı hedef":"")+
    '</small></span>'+(m.kind==="analiz"?'<button type="button" data-delete="'+esc(m.id)+'">Sil</button>':"")+'</label>';
  }).join(""):'<p class="lab-empty">Henüz kayıt bulunmuyor. Analiz kartlarından veya manuel matematik ekranından havuz kaydedebilirsin.</p>';
- const selected=el("couponPool").value;
- el("couponPool").innerHTML='<option value="">Sadece seçtiğim analizler</option>'+all.filter(m=>m.target===target&&m.pool.length>=6).map(m=>
-  '<option value="'+esc(m.kind+":"+m.id)+'">'+esc(m.name||m.id)+" · "+m.pool.length+" sayı</option>").join("");
- if(all.some(x=>x.kind+":"+x.id===selected))el("couponPool").value=selected;
+ const selected=el("couponPool").value,source=el("pipelineSource").value;
+ const records=all.filter(m=>m.target===target&&m.pool.length>=6);
+ const html=records.map(m=>'<option value="'+esc(m.kind+":"+m.id)+'">'+esc(m.name||m.id)+" · "+m.pool.length+" sayı</option>").join("");
+ el("couponPool").innerHTML='<option value="">Sadece seçtiğim analizler</option>'+
+   (state.pipeline?.result?.remaining?.length>=6?'<option value="pipeline">Son aşamalı süzgeç · '+state.pipeline.result.remaining.length+' sayı</option>':"")+html;
+ if(selected==="pipeline"&&state.pipeline?.result?.remaining?.length>=6)el("couponPool").value="pipeline";
+ else if(records.some(x=>x.kind+":"+x.id===selected))el("couponPool").value=selected;
+ el("pipelineSource").innerHTML='<option value="">Kayıtlı havuz seç</option>'+html;
+ if(records.some(x=>x.kind+":"+x.id===source))el("pipelineSource").value=source;
 }
 function poolByKey(key){return allSaved().find(s=>(s.kind+":"+s.id)===key)}
 function combine(){
@@ -132,9 +143,56 @@ async function backtest(){
  }catch(e){toast(e.message)}
  finally{btn.disabled=false;btn.textContent="▤ Geçmişte kontrol et"}
 }
+function runPipeline(){
+ const ctx=getCtx(),source=poolByKey(el("pipelineSource").value);
+ if(!source||source.target!==ctx.target)return toast("Süzgeç için bu hedefe ait bir havuz seç.");
+ if(!state.selection.size)return toast("Süzmek için en az bir analiz seç.");
+ const limit=getSettings().limit,results=[...state.selection].map(id=>analyze(ctx,id,limit));
+ const result=filterPipeline(source.pool,results,{keepAtLeast:Number(el("pipelineMinimum").value),
+   order:el("pipelineOrder").value});
+ state.pipeline={sourceName:source.name,sourceId:source.id,modules:[...state.selection],result,target:ctx.target};
+ const hits=assessPool(ctx,result.remaining);
+ el("pipelineReport").innerHTML='<div class="lab-stats"><div><strong>'+result.source.length+
+   '</strong><span>Orijinal havuz</span></div><div><strong>'+result.removed.length+
+   '</strong><span>Çıkarılan sayı</span></div><div><strong>'+result.remaining.length+
+   '</strong><span>Kalan sayı</span></div></div>'+
+   '<div class="lab-ballrow">'+balls(result.remaining,hits.hits)+'</div>'+
+   '<p class="lab-muted">Geçmiş hedef isabeti: '+(hits.hasResult?hits.hits.length+'/6':'Henüz belli değil')+
+   ' · Kaynak havuz değiştirilmedi.</p>'+
+   table('<thead><tr><th>Süzgeç</th><th>Önce</th><th>Sonra</th><th>Durum</th></tr></thead><tbody>'+
+     result.journal.map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+x.before+'</td><td>'+x.after+
+       '</td><td>'+esc(x.reason)+'</td></tr>').join("")+'</tbody>');
+ drawSaved();toast("Aşamalı süzme tamamlandı; "+result.remaining.length+" sayı kaldı.");
+}
+function savePipeline(){
+ const p=state.pipeline;if(!p)return toast("Önce aşamalı süzgeci çalıştır.");
+ state.saved.unshift(makeSavedEntry("Süzgeç · "+p.sourceName+" · "+p.modules.length+" analiz",p.result.remaining,p.modules));
+ state.saved=state.saved.slice(0,150);store(STORAGE.analysis,state.saved);
+ drawSaved();toast("Süzülen havuz ayrı bir kayıt olarak saklandı.");
+}
+function backupAll(){
+ const keys=Object.values(STORAGE),payload={format:"loto-tahmin-workspace",version:1,
+   exported:new Date().toISOString(),keys:Object.fromEntries(keys.map(k=>[k,recall(k)]))};
+ dl("loto_tum_calismalarim_"+new Date().toISOString().slice(0,10)+".json",
+   JSON.stringify(payload,null,2),"application/json;charset=utf-8");
+}
+async function importBackup(file){
+ if(!file)return;
+ if(file.size>3_000_000)throw Error("Yedek dosyası 3 MB üzerinde.");
+ const data=JSON.parse(await file.text());
+ if(data?.format!=="loto-tahmin-workspace"||data.version!==1||!data.keys||typeof data.keys!=="object")
+   throw Error("Geçerli Loto Tahmin yedeği değil.");
+ if(!window.confirm("Bu yedek cihazdaki mevcut havuz, kupon ve yarışma kayıtlarının üzerine yazacak. Onaylıyor musun?"))return;
+ for(const k of Object.values(STORAGE)){
+   const v=data.keys[k];
+   if(v!==undefined&&v!==null&&Array.isArray(v))store(k,v);
+ }
+ loadSaved();state.chosen.clear();state.pipeline=null;drawSaved();drawCouponHistory();drawTeams();
+ toast("Kayıtlar yedekten geri yüklendi.");
+}
 function savedPoolForCoupon(){
  const option=el("couponPool").value;
- return option?poolByKey(option)?.pool||[]:[];
+ return option==="pipeline"?(state.pipeline?.result.remaining||[]):option?poolByKey(option)?.pool||[]:[];
 }
 function makeCoupons(){
  const ctx=getCtx(),ids=[...state.selection];if(!ids.length)throw Error("Kupon için analiz seç.");
@@ -240,6 +298,7 @@ el("selectAll").onclick=()=>{state.selection=new Set(MODULES.map(x=>x.id));drawM
 el("deselectAll").onclick=()=>{state.selection.clear();drawModules()};
 el("labResults").addEventListener("click",e=>{const id=e.target.closest("[data-save-analysis]")?.dataset.saveAnalysis;if(id)saveModule(id)});
 el("analyzeNow").onclick=()=>{try{analyzeSelected()}catch(e){toast(e.message)}};
+el("saveAllAnalyses").onclick=saveAllAnalyses;
 el("testNow").onclick=backtest;
 el("labSaved").addEventListener("change",e=>{
  const key=e.target.dataset.poolKey;if(!key)return;
@@ -252,6 +311,13 @@ el("labSaved").addEventListener("click",e=>{
 el("combineNow").onclick=combine;
 el("saveCombined").onclick=saveCombined;
 el("downloadPool").onclick=downloadPool;
+el("runPipeline").onclick=()=>{try{runPipeline()}catch(e){toast(e.message)}};
+el("savePipeline").onclick=savePipeline;
+el("exportBackup").onclick=backupAll;
+el("importBackup").addEventListener("change",async e=>{
+ try{await importBackup(e.target.files?.[0])}catch(err){toast("Yedek hatası: "+err.message)}
+ e.target.value="";
+});
 el("makeCoupons").onclick=()=>{try{makeCoupons()}catch(e){toast(e.message)}};
 el("saveCoupons").onclick=saveCoupons;
 el("downloadCoupons").onclick=downloadCoupons;
@@ -269,6 +335,6 @@ el("clubCustomTeams").addEventListener("click",e=>{
 });
 el("runClub").onclick=runClub;
 el("saveClub").onclick=saveClub;
-el("labTarget").addEventListener("change",()=>{state.ctx=null;state.results=[];state.chosen.clear();drawSaved();el("labResults").innerHTML='<p class="lab-empty">Hedef değişti. Analizleri yeniden çalıştır.</p>'});
+el("labTarget").addEventListener("change",()=>{state.ctx=null;state.results=[];state.chosen.clear();state.pipeline=null;drawSaved();el("labResults").innerHTML='<p class="lab-empty">Hedef değişti. Analizleri yeniden çalıştır.</p>'});
 el("labWindow").addEventListener("change",()=>{state.ctx=null;state.results=[]});
 start();
