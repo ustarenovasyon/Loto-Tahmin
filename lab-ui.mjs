@@ -4,7 +4,7 @@ import {generateCoupons,clubContest,hexKey} from "./coupon-engine.mjs";
 const el=id=>document.getElementById(id);
 const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 const balls=(a,hits=[])=>a.map(n=>'<span class="lab-ball '+(hits.includes(n)?"hit":"")+'">'+n+'</span>').join("");
-const STORAGE={analysis:"loto-analysis-saved-v1",math:"loto-tahmin-saved-v1",coupons:"loto-coupon-history-v1",history:"loto-coupon-seen-v1",club:"loto-club-history-v1",customTeams:"loto-custom-club-teams-v1"};
+const STORAGE={analysis:"loto-analysis-saved-v1",math:"loto-tahmin-saved-v1",coupons:"loto-coupon-history-v1",history:"loto-coupon-seen-v1",club:"loto-club-history-v1",customTeams:"loto-custom-club-teams-v1",clubExternal:"loto-club-external-v1"};
 const state={draws:null,ctx:null,selection:new Set(["dna","limit","matrix","hot"]),results:[],saved:[],math:[],chosen:new Set(),combined:[],coupons:null,couponHistory:[],pipeline:null,seen:[],club:null,clubHistory:[],customTeams:[]};
 const fmt=x=>Number(x).toLocaleString("tr-TR",{maximumFractionDigits:2});
 function store(key,content){try{localStorage.setItem(key,JSON.stringify(content))}catch{}}
@@ -130,6 +130,12 @@ function drawSaved(){
  if(["selected-union","selected-intersection"].includes(selected))el("couponPool").value=selected;
  else if(selected==="pipeline"&&state.pipeline?.result?.remaining?.length>=6)el("couponPool").value="pipeline";
  else if(records.some(x=>x.kind+":"+x.id===selected))el("couponPool").value=selected;
+ let preferred=null;
+ try{preferred=localStorage.getItem("loto-coupon-preferred-source-v1")}catch{}
+ if(preferred&&records.some(x=>x.kind+":"+x.id===preferred)){
+   el("couponPool").value=preferred;
+   try{localStorage.removeItem("loto-coupon-preferred-source-v1")}catch{}
+ }
  el("pipelineSource").innerHTML='<option value="">Kayıtlı havuz seç</option>'+html;
  if(records.some(x=>x.kind+":"+x.id===source))el("pipelineSource").value=source;
 }
