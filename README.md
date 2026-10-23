@@ -25,7 +25,9 @@ Ondalık referans `r = tam + f` için:
 HTML + CSS + saf JavaScript (ES modules). Harici API, paket, izleme veya abonelik gerekmez. GitHub Pages üzerinde çalışır.
 
 ## GitHub Pages
-Repo → Settings → Pages → **Deploy from a branch** → `main` / `/(root)` → Save.
+Repo → **Settings → Pages → Build and deployment → GitHub Actions** seçin. `.github/workflows/deploy.yml` her `main` güncellemesinde yayımlama işini çalıştırır. İlk yayımlama tamamlanınca adres tipik olarak `https://ustarenovasyon.github.io/Loto-Tahmin/` olur. Canlı bağlantı ilk yayımlama öncesinde doğrulanmış değildir.
+
+Yerel bilgisayarda açmak için (ES modülleri ve TXT yüklemesi nedeniyle doğrudan `file://` yerine) örneğin `python -m http.server 8000` veya `npx serve .` ile klasörü sunun.
 
 ## Test
 `node --test tests/engine.test.mjs`
