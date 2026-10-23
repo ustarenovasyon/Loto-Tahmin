@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {parseArchive} from "../engine.mjs";
-import {MODULES,CLUB,buildContext,analyze,compareAnalysisSets,assessPool,historicalCheck,ticketMetrics} from "../analysis-engine.mjs";
+import {MODULES,CLUB,buildContext,analyze,compareAnalysisSets,assessPool,historicalCheck,ticketMetrics,filterPipeline,inspectBall,orderedHistory} from "../analysis-engine.mjs";
 import {generateCoupons,clubContest,hexKey} from "../coupon-engine.mjs";
 const draws=parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"));
 test("975 real draws and 31 functional analysis modules",()=>{
@@ -77,4 +77,29 @@ test("historical checks and 6 fixed systems can be tested on 20 draws without le
   teams:[...CLUB,{id:"myteam",name:"Kendi Sistemim",modules:["dna","sum","pairs"]}]});
  assert.equal(extra.records.length,7);
  assert.ok(extra.records.some(x=>x.id==="myteam"));
+});
+
+test("loss-aware 21-to-12 sieve never mutates the original input pool",()=>{
+ const c=buildContext(draws,976,100);
+ const original=[1,6,9,10,13,19,20,21,22,23,24,27,33,37,38,40,45,48,53,54,60];
+ const copy=[...original];
+ const results=["hot","dna","matrix","limit"].map(id=>analyze(c,id,18));
+ const r=filterPipeline(original,results,{keepAtLeast:12,order:"gentle"});
+ assert.equal(r.source.length,21);
+ assert.equal(r.remaining.length,12);
+ assert.ok(r.remaining.every(n=>original.includes(n)));
+ assert.deepEqual(original,copy);
+ assert.equal(r.journal.length,4);
+ assert.equal(r.journal.at(-1).after,12);
+});
+test("explainable DNA/Limit and ordered history do not use future target results",()=>{
+ const c=buildContext(draws,975,100),hidden=new Map(draws);hidden.delete(975);
+ const blind=buildContext(hidden,975,100);
+ const a=inspectBall(c,37,10),b=inspectBall(blind,37,10);
+ assert.deepEqual(a,b);
+ assert.equal(a.dna.reduce((total,x)=>total+x.count,0),c.freq[37]);
+ assert.ok(a.limit.every(n=>n>=0));
+ const ordered=orderedHistory(c,12);
+ assert.equal(ordered.length,12);
+ assert.ok(ordered.every(x=>x.id<975&&x.numbers.length===6));
 });
