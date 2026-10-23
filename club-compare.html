@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="tr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11253d">
+<meta name="description" content="Kendi loto sayı havuzunu, bağımsız Kazananlar Kulübü sistemleri ve sana ait dış tahmin kolonlarıyla karşılaştır.">
+<title>Kulüp Ortak Sayı Analizi · Loto Tahmin</title>
+<link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./lab.css"><link rel="stylesheet" href="./club-compare.css">
+</head>
+<body><main class="lab-shell">
+<header class="lab-nav"><a class="lab-logo" href="./index.html">◈ <strong>LOTO TAHMİN</strong></a>
+<nav><a href="./index.html">∑ Matematik</a><a href="./lab.html">◉ Analiz Merkezi</a><a href="./lab.html#club">♜ Kulüp</a></nav></header>
+<section class="lab-hero club-hero">
+<span class="lab-eyebrow">SAYI HAVUZU × KULÜP SİSTEMLERİ</span>
+<h1>Kulüp <span>Ortak Sayılar</span></h1>
+<p>Önce kendi sayılarını belirle. Sonra bağımsız kulüp sistemlerinin veya senin sağladığın dış tahmin kolonlarının içindeki ortak sayıları bul. Kupon yapmadan önce her sayının kaç sistemde destek bulduğunu gör.</p>
+<div class="lab-hero-actions"><a class="lab-button primary" href="#clubOwn">Karşılaştırmaya başla ↘</a><a class="lab-button outline" href="#clubHelp">Nasıl çalışıyor?</a></div>
+</section>
+<div class="lab-status" id="clubStatus">Arşiv yükleniyor…</div>
+
+<section class="lab-panel" id="clubOwn">
+<div class="lab-panel-heading"><span class="lab-step">01</span><div><h2>Benim sayı havuzum</h2><p>Matematik veya Analiz Merkezi'nden kayıtlı havuzu seç ya da sayıları kendin yaz.</p></div></div>
+<div class="lab-grid three">
+<label>Hedef çekiliş #<input id="clubTarget" type="number" min="2" value="976" inputmode="numeric"></label>
+<label>Geçmiş analiz aralığı<select id="clubWindow"><option value="30">30</option><option value="50">50</option><option value="100" selected>100</option><option value="200">200</option><option value="500">500</option></select></label>
+<label>Havuz kaynağım<select id="ownSource"><option value="manual">Elle yazdığım sayılar</option></select></label>
+</div>
+<label class="club-text-label" for="ownNumbers">Kendi sayılarım (6–60 arası istediğin kadar sayı)</label>
+<textarea id="ownNumbers" class="club-textarea" rows="3" spellcheck="false" placeholder="1, 6, 9, 10, 13, 19, 20, ...">1, 6, 9, 10, 13, 19, 20, 21, 22, 23, 24, 27, 33, 37, 38, 40, 45, 48, 53, 54, 60</textarea>
+<div class="lab-actions"><button id="applyOwn" type="button" class="lab-button primary">✓ Havuzu kullan</button><span class="lab-muted" id="ownCount"></span></div>
+<div id="ownPreview" class="lab-ballrow"></div>
+</section>
+
+<section class="lab-panel" id="clubSources">
+<div class="lab-panel-heading"><span class="lab-step">02</span><div><h2>Karşılaştırılacak kulüp sistemleri</h2><p>Kendi kulübümüzün bağımsız tahminlerini üret. Dışarıdan sağladığın farklı sistemlerin kolonlarını da ayrıca ekle.</p></div></div>
+<div class="club-source-split">
+<div class="club-subsection">
+<h3>◈ Bizim kulüp sistemlerimiz</h3>
+<p class="lab-muted">Bunlar <strong>LotoTürkiye'nin resmî tahminleri değildir</strong>; kendi uygulamamızdaki açık kurallı sistemlerden hesaplanır.</p>
+<div class="lab-grid two">
+<label>Sistem başına örnek altılı<select id="simulationCount"><option value="12">12 kolon</option><option value="24" selected>24 kolon</option><option value="50">50 kolon</option><option value="100">100 kolon</option></select></label>
+<label>Farklı çalışma numarası<input id="simulationSeed" type="number" value="419" inputmode="numeric"></label>
+</div>
+<div class="lab-actions"><button id="simulateClub" type="button" class="lab-button primary">♜ Kulüp sistemlerini hesapla</button><button id="shuffleClub" type="button" class="lab-button soft">↻ Yeni çalışma</button></div>
+</div>
+<div class="club-subsection">
+<h3>↗ Başka bir sistemin kolonları</h3>
+<p class="lab-muted">LotoTürkiye gibi dış kaynaklarda gördüğün ve karşılaştırmak için kendin sağladığın kolonları burada ayrı bir sistem olarak kaydedebilirsin.</p>
+<label class="club-text-label" for="externalName">Sistem adı</label>
+<input id="externalName" type="text" class="club-textfield" maxlength="75" placeholder="Örn. DELTA 01 / benim kayıtlarım">
+<label class="club-text-label" for="externalColumns">Her satıra bir altılı (çoklu yapıştırma)</label>
+<textarea id="externalColumns" rows="5" class="club-textarea" spellcheck="false" placeholder="6 9 13 24 37 53&#10;1 10 20 33 45 60&#10;..."></textarea>
+<div class="lab-actions"><button id="importExternal" type="button" class="lab-button soft">＋ Kaynağı ekle / kaydet</button><a href="https://www.lototurkiye.com/TAHMIN" target="_blank" rel="noopener noreferrer" class="lab-button soft">LotoTürkiye sayfası ↗</a></div>
+</div>
+</div>
+<h3 class="lab-subtitle">Sistem listem · seç / çıkar</h3>
+<div id="sourceList" class="club-source-list"><p class="lab-empty">Önce kulüp sistemlerini hesapla veya kolon kaynağı ekle.</p></div>
+</section>
+
+<section class="lab-panel" id="clubIntersect">
+<div class="lab-panel-heading"><span class="lab-step">03</span><div><h2>Ortak sayı süzgeci</h2><p>Havuzundaki bir sayının kaç ayrı kulüp sisteminde güçlü göründüğünü hesapla.</p></div></div>
+<div class="lab-grid three">
+<label>Bir sistemden kaç güçlü sayı alınsın?<select id="topPerSource"><option value="6">İlk 6</option><option value="10">İlk 10</option><option value="12" selected>İlk 12</option><option value="15">İlk 15</option><option value="20">İlk 20</option><option value="30">İlk 30</option><option value="60">O sistemin tüm görülen sayıları</option></select></label>
+<label>En az kaç sistemle ortak?<input id="minClubSources" type="number" min="1" value="2" inputmode="numeric"></label>
+<label>Çıktı<select id="intersectionDisplay"><option value="consensus" selected>En az K sistemin ortakları</option><option value="all">Bütün sistemlerin ortakları</option><option value="supported">En az 1 sistemde</option><option value="unmatched">Sistemlerde bulunmayanlar</option></select></label>
+</div>
+<div class="lab-note">Seçtiğin sistemin tahmin örneğinde sayı daha sık bulunuyorsa kendi iç sıralamasında yükselir. "İlk 12" gibi ayarlar, <strong>her sistemden eşit sayıda aday</strong> karşılaştırır. Bu, gerçek çıkma olasılığını artırdığı anlamına gelmez.</div>
+<div class="lab-actions"><button id="compareClub" type="button" class="lab-button primary">◎ Ortak sayıları bul</button><button id="saveConsensus" type="button" class="lab-button soft">＋ Seçili sonucu havuzlarıma kaydet</button><button id="exportClub" type="button" class="lab-button soft">↓ Sonucu TXT indir</button><button id="sendToCoupons" type="button" class="lab-button soft">↗ Kupon Atölyesine gönder</button></div>
+<div id="clubOutput"><p class="lab-empty">Önce kendi havuzunu ve karşılaştırılacak sistemleri seç.</p></div>
+</section>
+
+<section class="lab-panel" id="clubHelp">
+<div class="lab-panel-heading"><span class="lab-step">04</span><div><h2>Önerilen kullanım</h2><p>Kontrollü, adım adım sayı karşılaştırması.</p></div></div>
+<div class="lab-guide">
+<details open><summary>1 · Matematik analizinden kendi sayı havuzunu seç</summary><p>Örneğin 21 sayını olduğu gibi koru. İstersen önceden kaydettiğin 12 sayılık havuzu kullan. Kaynak havuz asla otomatik silinmez.</p></details>
+<details><summary>2 · Kulüp sistemlerini ayrı ayrı karşılaştır</summary><p>Kulübümüzdeki 6 bağımsız sistemden 24–100 kolon örneği oluştur. Varsa LotoTürkiye veya başka yerden <em>kendinin getirdiği</em> gerçek kolonları ayrı isimle ekle. Sistem adını ve kolonların hangi hedef çekilişe ait olduğunu kontrol et.</p></details>
+<details><summary>3 · En az 2–3 sistemin ortak sayılarına bak</summary><p>İlk 12–15 sayılık sistem listelerini kıyasla. Önce 2 sistem eşiğiyle başla; 3 veya 4 sistem eşiği çok sayıyı dışarıda bırakıyorsa geri dön. Ayrıca "Bütün sistemlerde ortak" seçeneği de var.</p></details>
+<details><summary>4 · Sayı havuzunu kaydet ve kupon yap</summary><p>Ortaya çıkan sonuç ayrı bir havuz olarak kaydedilir. Kupon Atölyesi'ne geçtiğinde bu havuzu sıkı veya yumuşak sınırla kullanabilirsin. Sıfır veya 6'dan az sayı varsa altılı yapmak için havuzu genişletmelisin.</p></details>
+<details><summary>5 · Dış tahminler ile kendi simülasyonlarımız arasındaki fark</summary><p>LotoTürkiye'deki sistemler birçok olası kombinasyon arasından örnekler yayımlıyor; tüm olasılıkları temsil ettikleri söylenemez. Sitemiz bu içerikleri otomatik kopyalamaz veya yeniden yayımlamaz. Senin eklediğin tahminler yalnızca kendi cihazında saklanır. 4–5 bilme garantisi yoktur.</p></details>
+</div></section>
+<footer class="lab-footer">Bu karşılaştırma, sayıların geçmişte hangi sistemlerde daha sık seçildiğini gösterir; bağımsız çekiliş sonuçlarını önceden bilemez.</footer>
+<div class="lab-toast" id="clubToast" role="status" aria-live="polite"></div>
+</main><script type="module" src="./club-compare-ui.mjs"></script></body></html>
