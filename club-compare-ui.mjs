@@ -177,7 +177,8 @@ function savePool(goCoupons=false){
   moduleIds:[],created:new Date().toISOString(),source:"Kulüp Ortak Sayı Analizi"};
  saved.unshift(entry);put(key,saved.slice(0,150));
  if(goCoupons){
-  // Kupon Atölyesi'ndeki açılır listenin seçebilmesi için yeni kayıt olarak tutulur.
+  // Kupon Atölyesi'nde sonuç havuzunu otomatik seç.
+  try{localStorage.setItem("loto-coupon-preferred-source-v1","analiz:"+entry.id)}catch{}
   window.location.href="./lab.html#coupons";
  }else{
   selectOptions();
