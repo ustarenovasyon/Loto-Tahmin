@@ -39,13 +39,17 @@
 <div class="lab-grid three"><label>Kaç kupon istersin?<input type="number" id="couponCount" min="1" max="100" value="5"></label>
 <label>Kullanılacak havuz<select id="couponPool"><option value="">Sadece seçtiğim analizler</option></select></label>
 <label>Havuz kısıtı<select id="couponStrict"><option value="soft">Yumuşak · dışarıdan sayı gelebilir</option><option value="strict">Sıkı · yalnızca havuz sayıları</option></select></label></div>
-<div class="lab-note">Yukarıdaki analiz seçimlerini kullanır. Birden fazla analiz seçilirse birlikte puanlar; tüm kuponların aynı olmamasına ve sayısal dağılıma dikkat eder. **4 veya 5 bilme garantisi yoktur.**</div>
+<div class="lab-note">Yukarıdaki analiz seçimlerini kullanır. Birden fazla analiz seçilirse birlikte puanlar; tüm kuponların aynı olmamasına ve sayısal dağılıma dikkat eder. 4 veya 5 bilme garantisi yoktur.</div>
 <div class="lab-actions"><button class="lab-button primary" id="makeCoupons">✣ Yeni kupon çalışması oluştur</button><button class="lab-button soft" id="saveCoupons">＋ Kuponları kaydet</button><button class="lab-button soft" id="downloadCoupons">↓ CSV indir</button></div>
 <div id="couponResult"></div><h3 class="lab-subtitle">Kayıtlı kupon çalışmalarım</h3><div id="couponHistory"></div>
 </section>
 
 <section class="lab-panel" id="club">
 <div class="lab-panel-heading"><span class="lab-step">04</span><div><h2>Sistemler Kulübü · yarışma</h2><p>Bağımsız altı sistem farklı analiz gruplarıyla yarışır. Aynı çekilişlerde 6 sayılık birer tahminle değerlendirilir.</p></div></div>
+<div class="lab-note">Kulüp sistemlerinin kuralları sabittir; geçmiş sonuçlara göre otomatik ayar öğrenme/tarama yapılmaz. İstersen yukarıda seçtiğin analiz birleşimini ayrı yarışmacı olarak kaydedebilirsin.</div>
+<div class="lab-grid two"><label>Yeni sisteminin adı<input id="clubCustomName" maxlength="55" placeholder="Örn. Benim Matriks + Limit"></label>
+<div style="display:flex;align-items:end"><button id="addClubTeam" class="lab-button soft" type="button">＋ Seçili analizlerle takım oluştur</button></div></div>
+<div id="clubCustomTeams"></div>
 <div id="clubTeams" class="lab-team-strip"></div>
 <div class="lab-grid two"><label>Geçmiş yarışma aralığı<select id="clubPeriod"><option value="10">10 çekiliş</option><option value="20" selected>20 çekiliş</option><option value="30">30 çekiliş</option><option value="50">50 çekiliş</option></select></label>
 <label>Tekrar üretilebilir yarışma numarası<input id="clubSeed" type="number" value="4719"></label></div>
