@@ -73,8 +73,8 @@ test("public pre-draw record produces selected playable candidates without editi
 });
 test("reject invalid count or overlap, never pretend fewer is exact",()=>{
  const record=forecast(draws,{target:976,period:5,systems:2,coupons:2});
- assert.throws(()=>selectFinalCoupons(record,{count:0}),/adet/);
- assert.throws(()=>selectFinalCoupons(record,{count:101}),/adet/);
+ assert.throws(()=>selectFinalCoupons(record,{count:0}),/kolon adedi/);
+ assert.throws(()=>selectFinalCoupons(record,{count:101}),/kolon adedi/);
  assert.throws(()=>selectFinalCoupons(record,{count:3,maxOverlap:6}),/ortak sayı/);
  const chosen=selectFinalCoupons(record,{count:10,maxOverlap:5});
  assert.equal(chosen.actualCount,4);
