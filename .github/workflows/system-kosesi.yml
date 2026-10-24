@@ -1,0 +1,42 @@
+name: Sistem Kosesi Public Journal
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 8 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'data/draws.txt'
+      - 'system-kosesi-engine.mjs'
+      - 'scripts/system-kosesi-ledger.mjs'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: public-system-ledger
+  cancel-in-progress: false
+
+jobs:
+  prepare-and-settle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify strategy tests
+        run: node --test tests/*.test.mjs
+      - name: Prepare forecasts and evaluate completed draws
+        run: node scripts/system-kosesi-ledger.mjs
+      - name: Publish append-only diary
+        run: |
+          if ! git diff --quiet -- data/system-kosesi-ledger.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/system-kosesi-ledger.json
+            git commit -m "Update public System Corner prediction diary"
+            git push
+          fi
