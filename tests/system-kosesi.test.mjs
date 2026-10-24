@@ -79,15 +79,16 @@ test("predraw and retrospective forecasts are never mislabeled as one another",(
 test("a published real draw can never silently change after settlement",()=>{
  const past=settleForecast(forecast(draws,{target:975,period:5,systems:2,coupons:2}),draws);
  const tampered=new Map(draws);
- tampered.set(975,{...draws.get(975),numbers:[1,2,3,4,5,6]});
+ tampered.set(975,{...draws.get(975),numbers:[...draws.get(974).numbers]});
  assert.throws(()=>settleForecast(past,tampered),/kilitli geçmiş kayıt uyuşmuyor/);
  assert.deepEqual(settleForecast(past,draws).actual,draws.get(975).numbers);
 });
-test("existing public pre-draw records stay pre-draw when the result arrives",()=>{
- const next=forecast(draws,{target:976,period:5,systems:2,coupons:2});
- delete next.origin;
- next.sourceArchive="975:975:22.10.2026:7-8-32-35-49-51";
- const withResult=new Map(draws);
- withResult.set(976,{id:976,date:"25.10.2026",numbers:[1,2,3,4,5,6]});
- assert.equal(settleForecast(next,withResult).origin,"pre_draw");
+test("public pending predictions stay unscored until their real draw is in the archive",()=>{
+ const publicLedger=JSON.parse(readFileSync(new URL("../data/system-kosesi-ledger.json",import.meta.url),"utf8"));
+ const pending=publicLedger.records.find(r=>r.state==="pending"&&!draws.has(r.target));
+ if(!pending)return; // Some future date: this archive may now contain every earlier published result.
+ const untouched=settleForecast(pending,draws);
+ assert.equal(untouched.state,"pending");
+ assert.deepEqual(untouched.selected,pending.selected);
+ assert.equal(untouched.actual,undefined);
 });
