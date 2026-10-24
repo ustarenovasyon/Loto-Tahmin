@@ -65,3 +65,29 @@ test("forward forecasts are frozen and settle only when actual result exists",()
   assert.deepEqual(row.ticketHits,row.tickets.map(t=>t.filter(n=>settled.actual.includes(n)).length));
  }
 });
+
+test("predraw and retrospective forecasts are never mislabeled as one another",()=>{
+ const next=forecast(draws,{target:976,period:5,systems:2,coupons:2});
+ assert.equal(next.origin,"pre_draw");
+ assert.equal(next.source,"data/draws.txt");
+ const past=forecast(draws,{target:975,period:5,systems:2,coupons:2});
+ assert.equal(past.origin,"retrospective");
+ const settled=settleForecast(past,draws);
+ assert.equal(settled.origin,"retrospective");
+ assert.deepEqual(settled.actual,draws.get(975).numbers);
+});
+test("a published real draw can never silently change after settlement",()=>{
+ const past=settleForecast(forecast(draws,{target:975,period:5,systems:2,coupons:2}),draws);
+ const tampered=new Map(draws);
+ tampered.set(975,{...draws.get(975),numbers:[1,2,3,4,5,6]});
+ assert.throws(()=>settleForecast(past,tampered),/kilitli geçmiş kayıt uyuşmuyor/);
+ assert.deepEqual(settleForecast(past,draws).actual,draws.get(975).numbers);
+});
+test("existing public pre-draw records stay pre-draw when the result arrives",()=>{
+ const next=forecast(draws,{target:976,period:5,systems:2,coupons:2});
+ delete next.origin;
+ next.sourceArchive="975:975:22.10.2026:7-8-32-35-49-51";
+ const withResult=new Map(draws);
+ withResult.set(976,{id:976,date:"25.10.2026",numbers:[1,2,3,4,5,6]});
+ assert.equal(settleForecast(next,withResult).origin,"pre_draw");
+});
