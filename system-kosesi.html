@@ -55,31 +55,31 @@
 <body><main class="system-shell">
 <header class="lab-nav"><a class="lab-logo" href="./index.html">◈ <strong>LOTO TAHMİN</strong></a><nav>
 <a href="./index.html">∑ Matematik</a><a href="./lab.html">◉ Analiz</a><a href="./club-compare.html">◎ Ortak Sayılar</a><a href="./system-kosesi.html" aria-current="page">✦ Sistem Köşesi</a></nav></header>
-<section class="s-hero"><span class="s-eyebrow">ŞEFFAF TEST · OTOMATİK DENEME · GERÇEK ARŞİV</span><h1>✦ Sistem Köşesi</h1><p>Sistem analizleri ve matematik yöntemlerini ayrı ayrı dener, iki havuzun ortaklarını bulur, gerçek geçmiş çekilişlerde sonuçlarını karşılaştırır ve yeni çekiliş için sanal altılı kuponlar oluşturur.</p>
+<section class="s-hero"><span class="s-eyebrow">ŞEFFAF TEST · OTOMATİK DENEME · GERÇEK ARŞİV</span><h1>✦ Sistem Köşesi</h1><p>Sistem analizleri ve matematik yöntemlerini ayrı ayrı dener, iki havuzun ortaklarını bulur, gerçek geçmiş çekilişlerde sonuçlarını karşılaştırır ve yeni çekiliş için henüz oynanmamış tahmini altılılar üretir.</p>
 <div class="s-actions"><button type="button" class="s-button primary" id="scan">↗ Tüm sistemleri test et</button><button type="button" class="s-button" id="reload">⟳ Arşivi yenile</button></div></section>
-<div role="status" aria-live="polite" class="s-banner" id="status">Gerçek arşiv yükleniyor…</div>
+<div role="status" aria-live="polite" class="s-banner" id="status">Kaynak çekiliş arşivi yükleniyor…</div>
 <section class="s-card" aria-labelledby="paramsTitle"><div class="s-title"><h2 id="paramsTitle">01 · Otomatik araştırma ayarları</h2><small>Test yalnızca hedef öncesindeki çekilişlerle yapılır</small></div>
 <div class="s-grid">
 <label>Hedef çekiliş #<input type="number" id="target" value="976" min="32" inputmode="numeric"></label>
 <label>Geçmişte test<select id="period"><option value="10" selected>Son 10 çekiliş</option><option value="20">Son 20 çekiliş</option><option value="50">Son 50 çekiliş</option><option value="100">Son 100 çekiliş</option></select></label>
 <label>Öne çıkan sistem<select id="top"><option value="5">İlk 5</option><option value="10" selected>İlk 10</option><option value="20">İlk 20</option></select></label>
-<label>Sistem başına kolon<select id="coupons"><option value="3">3 sanal kolon</option><option value="5" selected>5 sanal kolon</option><option value="10">10 sanal kolon</option></select></label>
+<label>Sistem başına kolon<select id="coupons"><option value="3">3 tahmin kolonu</option><option value="5" selected>5 tahmin kolonu</option><option value="10">10 tahmin kolonu</option></select></label>
 </div><div class="s-kpis" id="kpis"></div><div class="s-result">Puan = geçmişteki ortalama isabetin, aynı büyüklükteki rastgele havuzun beklenen isabetinden farkı; yeterli sayıda test yapılmayan yöntemlerin puanı düşürülür. Bu bir gelecek başarı garantisi değildir. Çok sayıda strateji denemek tesadüfi yüksek skorlar doğurabilir.</div></section>
 <section class="s-card"><div class="s-title"><h2>02 · Strateji başarı sıralaması</h2><small id="rankNote">Test bekleniyor</small></div>
 <div class="s-scroll"><table class="s-table"><thead><tr><th># / Strateji</th><th>Ort. havuz</th><th>Ort. isabet</th><th>Rastgele beklenti</th><th>Fark</th><th>3+ yakalama</th><th>Test</th></tr></thead><tbody id="rankBody"><tr><td colspan="7">Arşiv hazırlanıyor…</td></tr></tbody></table></div>
 <div id="detail" class="s-result">Bir stratejinin satırındaki “İncele” düğmesine basarak çekiliş çekiliş sonucunu görebilirsin.</div></section>
-<section class="s-card"><div class="s-title"><h2>03 · İki yöntemin ortak sayılarını bul</h2><small>30 + 30 aday → ortak havuz</small></div>
+<section class="s-card"><div class="s-title"><h2>03 · Gerçek verilere dayalı havuz kesişimi</h2><small>30 + 30 aday → ortak havuz</small></div>
 <div class="s-grid"><label>Birinci yöntem<select id="sourceA"></select></label><label>İkinci yöntem<select id="sourceB"></select></label>
 <label>Karşılaştırma<select id="combine"><option value="intersection">Kesişim · ortaklar</option><option value="union">Birleşim · tüm adaylar</option></select></label>
 <label>Kaç kolon?<select id="compareCount"><option value="3">3</option><option value="5" selected>5</option><option value="10">10</option></select></label></div>
 <div class="s-actions"><button type="button" class="s-button primary" id="compare">◎ Ortakları hesapla ve kupon oluştur</button></div>
 <div id="compareResult" class="s-empty">Birinci ve ikinci stratejiyi seç. Ana tarama, bütün ikili kesişimleri zaten otomatik dener.</div></section>
-<section class="s-card"><div class="s-title"><h2>04 · Gelecek çekiliş için sanal kuponlar</h2><small>Satın alma yapmaz · TXT olarak indirilebilir</small></div>
-<div class="s-actions"><button type="button" class="s-button primary" id="make">✣ Öne çıkan sistemlerle kupon hazırla</button><button type="button" class="s-button" id="download">↓ TXT indir</button><button type="button" class="s-button" id="export">↓ Yerel kayıt JSON</button></div>
-<div id="forecastResult" class="s-empty">Henüz kupon hazırlanmadı.</div></section>
-<section class="s-card"><div class="s-title"><h2>05 · Herkese açık sistem günlüğü</h2><small>GitHub sürüm geçmişiyle kontrol edilebilir</small></div>
+<section class="s-card"><div class="s-title"><h2>04 · Sistemin oluşturduğu kupon tahminleri</h2><small>Otomatik üretilir · gerçekte satın alınmaz · TXT olarak indirilebilir</small></div>
+<div class="s-actions"><button type="button" class="s-button primary" id="make">✣ Öne çıkan sistemlerle tahmin üret</button><button type="button" class="s-button" id="download">↓ TXT indir</button><button type="button" class="s-button" id="export">↓ Yerel kayıt JSON</button></div>
+<div id="forecastResult" class="s-empty">Henüz tahmin hazırlanmadı.</div></section>
+<section class="s-card"><div class="s-title"><h2>05 · Herkese açık sistem günlüğü</h2><small>Üretim tarihi ve önceki GitHub kayıtları kontrol edilebilir</small></div>
 <div class="s-actions"><a href="https://github.com/ustarenovasyon/Loto-Tahmin/commits/main/data/system-kosesi-ledger.json" target="_blank" rel="noopener noreferrer" class="s-button" style="text-decoration:none">↗ GitHub kayıt geçmişi</a><button type="button" id="publicRefresh" class="s-button">⟳ Kamuya açık kayıtları güncelle</button></div>
 <div id="publicResults" class="s-empty">Herkese açık sonuç günlüğü kontrol ediliyor…</div>
-<p class="s-muted">Kamuya açık kayıtları GitHub iş akışı oluşturur; sonuç geldikten sonra geçmişteki tahminler değiştirilemez. GitHub Pages sunucusu canlı bahis yapmaz. Sonuçlar arşive eklendiğinde karşılaştırılır; resmî sonuçları otomatik alma bağlantısı kurulmamışsa yeni çekiliş arşive kendiliğinden eklenmez.</p></section>
-<footer class="s-bottom">Sistem Köşesi gerçek 6/60 Süper Loto çekilişleriyle çalışır. Kuponlar yalnızca sanal araştırma çıktılarıdır. Rastgele çekilişlerde her altılı kombinasyonun kazanma şansı eşittir; geçmiş performans geleceği garanti etmez. <a href="./lab.html">Analiz Merkezi'ne dön</a></footer>
+<p class="s-muted">Sistem yalnızca projedeki data/draws.txt arşivinden hesaplama yapar; eksik çekiliş veya uydurma sayı tamamlamaz. Geçmiş testlerde sonuç tahmine girmez. Çekiliş sonrası isabet ayrı ölçülür. Gerçekte kupon satın alma işlemi yapılmaz. GitHub iş akışı tahminleri kaydeder; sonradan değişiklik olup olmadığını commit tarihçesinden kontrol edebilirsin. Resmî sonuçları otomatik alma henüz bağlı değil; arşiv güncellenmedikçe sonuç beklemede kalır.</p></section>
+<footer class="s-bottom">Sistem Köşesi projede kayıtlı 6/60 Süper Loto çekiliş arşiviyle çalışır. Öneri kuponları gerçekte satın alınmış değildir. Rastgele çekilişlerde her altılı kombinasyonun kazanma şansı eşittir; geçmiş performans geleceği garanti etmez. <a href="./lab.html">Analiz Merkezi'ne dön</a></footer>
 </main><script type="module" src="./system-kosesi-ui.mjs"></script></body></html>
