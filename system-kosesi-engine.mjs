@@ -176,13 +176,18 @@ export function forecast(draws,{target,period=20,window=100,systems=10,coupons=5
   });
  return {version:SYSTEM_VERSION,target,archiveLast:latest,
   period,window,systems:selected.length,couponsPerSystem:coupons,
-  state:draws.has(target)?"historical":"pending",selected};
+  origin:draws.has(target)?"retrospective":"pre_draw",
+  source:"data/draws.txt",state:draws.has(target)?"historical":"pending",selected};
 }
 export function settleForecast(record,draws){
  if(!record||!Number.isInteger(record.target))throw Error("Geçersiz kayıt.");
+ // Never present a reconstruction made after the draw as a pre-draw prediction.
  const actual=draws.get(record.target)?.numbers;
+ if(record.state==="settled"&&actual&&
+   JSON.stringify([...actual])!==JSON.stringify(record.actual))
+   throw Error("Arşivdeki sonuç ve kilitli geçmiş kayıt uyuşmuyor; otomatik değiştirilmedi.");
  if(!actual)return {...record,state:"pending"};
- return {...record,state:"settled",actual:[...actual],
+ return {...record,state:"settled",origin:record.origin||"retrospective",actual:[...actual],
   selected:record.selected.map(row=>{
    const hits=row.pool.filter(n=>actual.includes(n));
    const ticketHits=row.tickets.map(ticket=>ticket.filter(n=>actual.includes(n)).length);
