@@ -9,6 +9,32 @@ const storageKey="loto-system-kosesi-v1";
 const state={draws:null,report:null,forecast:null,own:null,public:null,signature:null};
 const list=catalog();
 const names=new Map(list.specs.map(s=>[s.id,s]));
+let customPools=new Map();
+function sourceOptions(){
+ const current=Number($("target").value);
+ customPools=new Map();
+ for(const [key,prefix] of [["loto-tahmin-saved-v1","matematik"],["loto-analysis-saved-v1","analiz"]]){
+  try{
+   const saved=JSON.parse(localStorage.getItem(key)||"[]");
+   if(!Array.isArray(saved))continue;
+   for(const x of saved){
+    if(x.target!==current||!Array.isArray(x.pool))continue;
+    const numbers=[...new Set(x.pool.map(Number))].filter(n=>Number.isInteger(n)&&n>=1&&n<=60).sort((a,b)=>a-b);
+    if(numbers.length<6)continue;
+    const id="saved:"+prefix+":"+String(x.id||"").replace(/[^a-zA-Z0-9-]/g,"");
+    customPools.set(id,{pool:numbers,name:prefix==="matematik"?"∑ "+(x.name||"Matematik Havuzu"):x.name||"Analiz Havuzu"});
+   }
+  }catch{}
+ }
+ const prevA=$("sourceA").value,prevB=$("sourceB").value;
+ const builtins=list.specs.filter(x=>x.kind==="wide"||x.kind==="single");
+ const options=builtins.map(x=>'<option value="'+safe(x.id)+'">'+safe(x.name)+'</option>').join("")+
+  (customPools.size?'<optgroup label="Kendi kayıtlı havuzlarım">'+[...customPools.entries()].map(([id,r])=>
+   '<option value="'+safe(id)+'">'+safe(r.name)+' · '+r.pool.length+' sayı</option>').join("")+'</optgroup>':"");
+ $("sourceA").innerHTML=options;$("sourceB").innerHTML=options;
+ $("sourceA").value=[...builtins.map(x=>x.id),...customPools.keys()].includes(prevA)?prevA:"wide-hot";
+ $("sourceB").value=[...builtins.map(x=>x.id),...customPools.keys()].includes(prevB)?prevB:"wide-dna";
+}
 function numbers(arr,hit=[]){return arr.map(n=>'<span class="s-ball '+(hit.includes(n)?"hit":"")+'">'+n+'</span>').join("")}
 function settings(){
  const opts={target:Number($("target").value),period:Number($("period").value),window:100,
@@ -79,18 +105,20 @@ async function scan(){
 function makeCompare(){
  const opts=settings(),idA=$("sourceA").value,idB=$("sourceB").value,op=$("combine").value;
  const built=buildPools(state.draws,opts.target,{window:opts.window});
- const a=built.all.get(idA)||[],b=built.all.get(idB)||[];
+ const a=built.all.get(idA)||customPools.get(idA)?.pool||[],b=built.all.get(idB)||customPools.get(idB)?.pool||[];
  const set=new Set(b),intersection=a.filter(n=>set.has(n));
  const pool=op==="intersection"?intersection:[...new Set([...a,...b])].sort((x,y)=>x-y);
  const tickets=virtualCoupons(pool,{count:Number($("compareCount").value),seed:opts.target*31+pool.reduce((x,y)=>x+y,0)});
  const actual=state.draws.get(opts.target)?.numbers||[];
  const hits=actual.filter(n=>pool.includes(n));
- const result={target:opts.target,idA,idB,operation:op,pool,tickets,actual:actual.length?actual:null,hits,created:new Date().toISOString()};
+ const nameA=names.get(idA)?.name||customPools.get(idA)?.name||idA;
+ const nameB=names.get(idB)?.name||customPools.get(idB)?.name||idB;
+ const result={target:opts.target,idA,idB,nameA,nameB,operation:op,pool,tickets,actual:actual.length?actual:null,hits,created:new Date().toISOString()};
  state.own=result;saveLocal();renderOwn();
 }
 function renderOwn(){
  const o=state.own;if(!o)return;
- const oldA=names.get(o.idA)?.name||o.idA,oldB=names.get(o.idB)?.name||o.idB;
+ const oldA=o.nameA||names.get(o.idA)?.name||o.idA,oldB=o.nameB||names.get(o.idB)?.name||o.idB;
  const label=o.operation==="intersection"?"Ortak havuz":"Birleşik havuz";
  $("compareResult").className="";
  $("compareResult").innerHTML='<div class="s-result"><strong>'+safe(oldA)+'</strong> ve <strong>'+safe(oldB)+'</strong>'+
@@ -177,7 +205,7 @@ async function loadData(){
   $("target").value=last+1;$("target").max=last+1;
   $("status").textContent=draws.size+" gerçek çekiliş kaydı yüklendi; son #"+last+
   " · Sonraki tahmin #"+(last+1)+". Kamuya açık sistem için aynı arşiv kullanılıyor.";
-  restoreLocal();
+  restoreLocal();sourceOptions();
   if(state.forecast){state.forecast=settleForecast(state.forecast,draws);renderForecast()}
   if(state.own){if(draws.has(state.own.target)){state.own.actual=draws.get(state.own.target).numbers;state.own.hits=state.own.actual.filter(n=>state.own.pool.includes(n))}renderOwn()}
   saveLocal();
@@ -185,10 +213,7 @@ async function loadData(){
  }catch(e){reportErrors(e)}
 }
 const analyses=list.sources.filter(s=>s.id.startsWith("an-"));
-$("sourceA").innerHTML=list.specs.filter(x=>x.kind==="wide"||x.kind==="single")
- .map(x=>'<option value="'+safe(x.id)+'">'+safe(x.name)+'</option>').join("");
-$("sourceB").innerHTML=$("sourceA").innerHTML;
-$("sourceA").value="wide-hot";$("sourceB").value="wide-dna";
+$("target").addEventListener("change",sourceOptions);
 $("scan").onclick=scan;$("reload").onclick=loadData;$("make").onclick=makeForecast;
 $("compare").onclick=()=>{try{makeCompare()}catch(e){reportErrors(e)}};
 $("rankBody").addEventListener("click",e=>{const id=e.target.closest("[data-inspect]")?.dataset.inspect;if(id)inspect(id)});
@@ -196,3 +221,5 @@ $("download").onclick=exportForecast;
 $("export").onclick=()=>download("sistem-kosesi-kayit.json",JSON.stringify({savedAt:new Date().toISOString(),forecast:state.forecast,comparison:state.own,report:state.report},null,2),"application/json");
 $("publicRefresh").onclick=refreshPublic;
 loadData();
+// Açık sayfa, yayımlanmış yeni tahmin ve sonuçları kendi kendine yeniler.
+setInterval(()=>{if(document.visibilityState!=="hidden")refreshPublic()},120000);
