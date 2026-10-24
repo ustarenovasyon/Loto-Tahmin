@@ -1,12 +1,13 @@
 import {parseArchive} from "./engine.mjs";
 import {MODULES} from "./analysis-engine.mjs";
 import {SYSTEM_COUNT,catalog,backtest,buildPools,virtualCoupons,forecast,settleForecast,archiveSignature} from "./system-kosesi-engine.mjs";
+import {columnHistory,selectFinalCoupons} from "./system-kosesi-selection.mjs";
 
 const $=id=>document.getElementById(id);
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=n=>Number(n).toLocaleString("tr-TR",{maximumFractionDigits:3});
 const storageKey="loto-system-kosesi-v1";
-const state={draws:null,report:null,forecast:null,own:null,public:null,signature:null};
+const state={draws:null,report:null,forecast:null,own:null,public:null,signature:null,finalChoice:null};
 const list=catalog();
 const names=new Map(list.specs.map(s=>[s.id,s]));
 let customPools=new Map();
@@ -45,13 +46,14 @@ function settings(){
 }
 function saveLocal(){
  try{localStorage.setItem(storageKey,JSON.stringify({signature:state.signature,
-  forecast:state.forecast,own:state.own,report:state.report?{target:state.report.target,period:state.report.period}:null}))}catch{}
+  forecast:state.forecast,own:state.own,finalChoice:state.finalChoice,report:state.report?{target:state.report.target,period:state.report.period}:null}))}catch{}
 }
 function restoreLocal(){
  try{
   const item=JSON.parse(localStorage.getItem(storageKey)||"null");
   if(item?.forecast?.selected&&Array.isArray(item.forecast.selected))state.forecast=item.forecast;
   if(item?.own)state.own=item.own;
+  if(item?.finalChoice?.columns&&Array.isArray(item.finalChoice.columns))state.finalChoice=item.finalChoice;
  }catch{}
 }
 function download(name,data,type="text/plain;charset=utf-8"){
@@ -173,6 +175,90 @@ function exportForecast(){
  (row.ticketHits?" · "+row.ticketHits[n]+"/6":"")).join("\n")).join("\n\n");
  download("sistem-kosesi_"+r.target+".txt",text);
 }
+
+function getSelectionSource(){
+ const target=Number($("target").value);
+ const origin=$("finalSource").value;
+ if(origin==="public"){
+  const record=state.public?.records?.find(r=>r.target===target);
+  if(!record)throw Error("#"+target+" için herkese açık kupon kaydı yok. Önce yerel tahmin üretip kaynak olarak onu seç.");
+  return {record,origin};
+ }
+ const record=state.forecast;
+ if(!record||record.target!==target||!record.selected?.length)
+  throw Error("#"+target+" için bu sayfada kupon üretilmedi. Önce 'Tahmin üret' seçeneğine bas.");
+ return {record,origin};
+}
+function finalText(result){
+ return "SİSTEM KÖŞESİ — OYNAYACAĞIM KOLONLAR (HENÜZ SATIN ALINMADI)\n"+
+ "Hedef: #"+result.target+"\nKaynak: "+(result.sourceKind==="public"?"Herkese açık kayıtlı sistem kolonları":"Kendi yerel sistem kolonlarım")+
+ "\nSon seçim zamanı: "+result.created+"\nDurum: "+(result.resultWasKnown?"SONUCU BİLİNEN GEÇMİŞ HEDEF":"SEÇİM ANINDA SONUÇ BİLİNMİYOR")+
+ "\nToplam aday: "+result.totalColumns+" · Farklı: "+result.uniqueCandidates+
+ "\nİstenen: "+result.requested+" · Seçilen: "+result.actualCount+"\n"+
+ result.columns.map((x,i)=>(i+1)+". "+x.numbers.join(" - ")).join("\n")+
+ "\n\nNot: Geçmiş verilerle ölçülen aday seçimidir, gelecekte kazanma garantisi yoktur. Kuponlar satın alınmış değildir.";
+}
+function renderFinal(){
+ const r=state.finalChoice;
+ if(!r){$("finalResult").className="s-empty";$("finalResult").textContent="Henüz final kolon seçilmedi.";return}
+ const actual=state.draws?.get(r.target)?.numbers||[];
+ const lines=r.columns.map((c,i)=>{
+  const src=c.sources?.slice().sort((a,b)=>b.score-a.score)?.[0];
+  const tests=src?.history;
+  const hits=actual.filter(n=>c.numbers.includes(n));
+  return '<div class="s-ticket"><h4>'+(i+1)+'. seçilen kolon'+
+   (actual.length===6?' · <span class="s-good">'+hits.length+'/6 gerçekleşmiş isabet</span>':' · <span class="s-pending">Sonuç bekleniyor</span>')+'</h4>'+
+   '<div class="s-balls">'+numbers(c.numbers,hits)+'</div>'+
+   '<p>Kaynak: '+safe(src?.name||"—")+" · "+(c.sources?.length||1)+' sistemde bulundu'+
+   (tests?.tries?' · '+tests.tries+' geçmiş çekilişte aynı sistemin '+(src.index)+'. kolonunun ort. '+fmt(tests.average)+'/6 isabeti':' · Yeterli geçmiş kolon testi yok')+
+   '</p></div>';
+ }).join("");
+ $("finalResult").className="";
+ $("finalResult").innerHTML='<div class="s-result"><strong>Hedef #'+r.target+'</strong> · '+r.totalColumns+
+ ' toplam sistem kolonu, '+r.uniqueCandidates+' farklı altılı içinden <b>'+r.actualCount+
+ ' kolon seçildi</b> (istenen: '+r.requested+').'+
+ (r.actualCount<r.requested?' <b>Belirlenen ortak sayı sınırı nedeniyle istenen adede ulaşılamadı. Sınırı gevşetip tekrar deneyebilirsin.</b>':'')+
+ '</div><p class="s-muted">'+safe(r.sourceKind==="public"?"Herkese açık kayıttaki önceden üretilmiş adaylardan kişisel seçim.":"Tarayıcıda oluşturulmuş adaylardan kişisel seçim.")+
+ ' · Son seçim zamanı: '+safe(r.created)+
+ (r.resultWasKnown?' · Sonucu bilinen çekiliş için sonradan yapılmış seçim, ön tahmin değildir.':
+  ' · Seçim yapıldığı sırada hedef sonucu arşivde yoktu.')+
+ ' · Sistem satın alma işlemi yapmadı.</p><div class="s-tickets">'+lines+'</div>';
+ $("finalDownload").disabled=!r.columns.length;
+ $("finalCopy").disabled=!r.columns.length;
+}
+async function runFinalSelection(){
+ if(!state.draws)return;
+ $("finalSelect").disabled=true;
+ $("finalResult").className="s-empty";
+ $("finalResult").textContent="Hedef öncesi gerçek çekilişlerle geçmiş kolonlar ölçülüyor ve kayıtlı kuponlardan seçiliyor…";
+ await wait();
+ try{
+  const {record,origin}=getSelectionSource();
+  const period=Number($("finalPeriod").value);
+  const history=columnHistory(state.draws,record,{period});
+  const result=selectFinalCoupons(record,{
+   count:Number($("finalCount").value),maxOverlap:Number($("finalOverlap").value),history
+  });
+  // Personal choice is timestamped separately; do not rewrite the published original tickets.
+  state.finalChoice={...result,sourceKind:origin,created:new Date().toISOString(),
+   originalRecordDate:record.created||null,resultWasKnown:state.draws.has(record.target)};
+  saveLocal();renderFinal();
+  $("status").textContent="Final seçildi: "+result.actualCount+" kolon, #"+record.target+
+   ". Yalnızca önce oluşturulmuş gerçek hesaplama sonuçları kullanıldı; satın alma yapılmadı.";
+ }catch(e){reportErrors(e);$("finalResult").textContent="Son seçim oluşturulamadı: "+e.message}
+ finally{$("finalSelect").disabled=false}
+}
+function finalDownload(){
+ if(!state.finalChoice?.columns?.length)return alert("Önce oynayacağın kolonları seç.");
+ download("oynayacagim_kolonlar_"+state.finalChoice.target+".txt",finalText(state.finalChoice));
+}
+async function finalCopy(){
+ if(!state.finalChoice?.columns?.length)return;
+ const data=state.finalChoice.columns.map((x,i)=>(i+1)+". "+x.numbers.join(" - ")).join("\n");
+ try{await navigator.clipboard.writeText(data);$("status").textContent=state.finalChoice.columns.length+" kolon panoya kopyalandı."}
+ catch{$("status").textContent="Panoya erişilemedi. TXT indirme düğmesini kullanabilirsin."}
+}
+
 async function refreshPublic(){
  try{
   // Disallow stale GitHub Pages CDN copies after a published draw update.
@@ -212,6 +298,7 @@ async function loadData(){
   restoreLocal();sourceOptions();
   if(state.forecast){state.forecast=settleForecast(state.forecast,draws);renderForecast()}
   if(state.own){if(draws.has(state.own.target)){state.own.actual=draws.get(state.own.target).numbers;state.own.hits=state.own.actual.filter(n=>state.own.pool.includes(n))}renderOwn()}
+  if(state.finalChoice)renderFinal();
   saveLocal();
   await refreshPublic();
  }catch(e){reportErrors(e)}
@@ -224,6 +311,9 @@ $("rankBody").addEventListener("click",e=>{const id=e.target.closest("[data-insp
 $("download").onclick=exportForecast;
 $("export").onclick=()=>download("sistem-kosesi-kayit.json",JSON.stringify({savedAt:new Date().toISOString(),forecast:state.forecast,comparison:state.own,report:state.report},null,2),"application/json");
 $("publicRefresh").onclick=refreshPublic;
+$("finalSelect").onclick=runFinalSelection;
+$("finalDownload").onclick=finalDownload;
+$("finalCopy").onclick=finalCopy;
 loadData();
 // Açık sayfa, yayımlanmış yeni tahmin ve sonuçları kendi kendine yeniler.
 setInterval(()=>{if(document.visibilityState!=="hidden")refreshPublic()},120000);
