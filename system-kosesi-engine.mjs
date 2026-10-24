@@ -187,7 +187,9 @@ export function settleForecast(record,draws){
    JSON.stringify([...actual])!==JSON.stringify(record.actual))
    throw Error("Arşivdeki sonuç ve kilitli geçmiş kayıt uyuşmuyor; otomatik değiştirilmedi.");
  if(!actual)return {...record,state:"pending"};
- return {...record,state:"settled",origin:record.origin||"retrospective",actual:[...actual],
+ const archivedBefore=Number(String(record.sourceArchive||"").split(":")[1]);
+ const inferredOrigin=Number.isInteger(archivedBefore)&&archivedBefore===record.target-1?"pre_draw":"retrospective";
+ return {...record,state:"settled",origin:record.origin||inferredOrigin,actual:[...actual],
   selected:record.selected.map(row=>{
    const hits=row.pool.filter(n=>actual.includes(n));
    const ticketHits=row.tickets.map(ticket=>ticket.filter(n=>actual.includes(n)).length);
