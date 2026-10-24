@@ -71,7 +71,7 @@ function rankHtml(row,index){
 }
 function renderRanks(){
  const r=state.report;if(!r)return;
- $("rankNote").textContent=r.rows.length+" strateji · "+r.totalRuns+" gerçek geçmiş çekiliş (hedef #"+r.target+")";
+ $("rankNote").textContent=r.rows.length+" strateji · "+r.totalRuns+" arşivdeki geçmiş çekiliş (hedef #"+r.target+") · Ölçülen: HAVUZ isabeti";
  $("rankBody").innerHTML=r.rows.map(rankHtml).join("");
  $("kpis").innerHTML=[
   [SYSTEM_COUNT,"Toplam yöntem ve kombinasyon"],
@@ -81,7 +81,7 @@ function renderRanks(){
  ].map(([n,label])=>'<div class="s-kpi"><strong>'+safe(n)+'</strong><span>'+safe(label)+'</span></div>').join("");
  if(r.rows.length){
   $("detail").textContent="İlk sıradaki strateji: "+r.rows[0].name+". "+r.totalRuns+
-   " çekilişlik testte toplam "+r.rows[0].hits+" isabet. Sıralama havuz büyüklüğünü ve karşılaştırılan gerçek sonuçları hesaba katar.";
+   " çekilişlik testte havuzunda toplam "+r.rows[0].hits+" doğru sayı bulundu. Bu kolon başına isabet değildir. Sıralama havuz büyüklüğünü hesaba katar.";
  }
 }
 function inspect(id){
@@ -138,9 +138,11 @@ function renderForecast(){
  const actual=r.actual||[];
  $("forecastResult").className="";
  const banners='<div class="s-result"><b>Hedef #'+r.target+'</b> · '+r.systems+' sistem · '+r.couponsPerSystem+
-  ' sanal kupon/sistem · '+(r.state==="settled"?
+  ' öneri kolonu/sistem · Satın alınmadı · '+(r.state==="settled"?
   '<span class="s-good">Gerçek sonuç: '+actual.join(" - ")+'</span>':
-  '<span class="s-pending">Çekiliş bekleniyor</span>')+'</div>';
+  '<span class="s-pending">Çekiliş bekleniyor</span>')+
+  (r.origin==="retrospective"?' · <b>GEÇMİŞ TEST: sonuçtan önce kaydedilmiş tahmin değil</b>':
+   ' · <b>Geleceğe dönük hesaplama</b>')+'</div>';
  $("forecastResult").innerHTML=banners+r.selected.map((s,i)=>
   '<article class="s-ticket" style="margin:12px 0"><h4>'+(i+1)+'. '+safe(s.name)+' · '+s.pool.length+
   ' aday'+(s.hits?' · <span class="s-good">'+s.hits.length+'/6 havuz isabeti</span>':'')+'</h4>'+
@@ -159,13 +161,13 @@ function makeForecast(){
   }else{
    state.forecast=settleForecast(forecast(state.draws,opt),state.draws);
   }
-  renderForecast();saveLocal();$("status").textContent="#"+opt.target+" sanal kupon kaydı oluşturuldu. Satın alma yapılmadı.";
+  renderForecast();saveLocal();$("status").textContent="#"+opt.target+" gerçek arşive dayalı tahmin oluşturuldu. Hiçbir kupon satın alınmadı.";
  }catch(e){reportErrors(e)}finally{busy("make",false)}
 }
 function exportForecast(){
- const r=state.forecast;if(!r)return alert("Önce sanal kupon üret.");
- const text="SİSTEM KÖŞESİ · SANAL ÇALIŞMA\nHedef: #"+r.target+"\nDurum: "+(r.state==="pending"?"BEKLEMEDE":"SONUÇLANDI")+
- "\nMotor: "+r.version+"\n\n"+r.selected.map((row,i)=>(i+1)+") "+row.name+
+ const r=state.forecast;if(!r)return alert("Önce tahmin oluştur.");
+ const text="SİSTEM KÖŞESİ · SATIN ALINMAMIŞ SİSTEM TAHMİNİ\nHedef: #"+r.target+"\nDurum: "+(r.state==="pending"?"BEKLEMEDE":"SONUÇLANDI")+
+ "\nMotor: "+r.version+"\nKayıt türü: "+(r.origin==="retrospective"?"SONRADAN ÜRETİLMİŞ GEÇMİŞ TEST":"İLERİYE DÖNÜK TAHMİN")+"\n\n"+r.selected.map((row,i)=>(i+1)+") "+row.name+
  "\nHAVUZ ("+row.pool.length+"): "+row.pool.join(", ")+
  "\n"+row.tickets.map((ticket,n)=>(n+1)+". "+ticket.join(" - ")+
  (row.ticketHits?" · "+row.ticketHits[n]+"/6":"")).join("\n")).join("\n\n");
@@ -185,7 +187,9 @@ async function refreshPublic(){
    rows.slice(0,15).map(r=>'<div class="s-ticket" style="margin:8px 0"><b>Çekiliş #'+r.target+'</b> · '+
    (r.state==="settled"?'<span class="s-good">Sonuçlandı · '+safe((r.actual||[]).join(" - "))+'</span>':
    '<span class="s-pending">Tahmin kaydedildi · sonuç bekleniyor</span>')+
-   '<p class="s-muted">Tahmin oluşturma: '+safe(r.created||"—")+' · Kayıt sürümü: '+safe(r.version||"—")+'</p>'+
+   '<p class="s-muted">Oluşturulma: '+safe(r.created||"—")+' · Motor: '+safe(r.version||"—")+
+   ' · Gerçekte satın alınmadı · Kaynak: '+safe(r.sourceFile||"data/draws.txt")+
+   (r.origin==="retrospective"?' · Geçmişte sonradan oluşturuldu':' · Çekiliş öncesi kaydedilmiş tahmin')+'</p>'+
    '<details><summary>'+r.selected.length+' sistemin kuponlarını gör</summary>'+
    r.selected.map(s=>'<div style="margin:10px 0"><b>'+safe(s.name)+'</b>'+
    (s.hits?' · '+s.hits.length+'/6 sayı kapsandı':'')+
@@ -203,7 +207,7 @@ async function loadData(){
   state.draws=draws;state.signature=archiveSignature(draws);
   const last=Math.max(...draws.keys());
   $("target").value=last+1;$("target").max=last+1;
-  $("status").textContent=draws.size+" gerçek çekiliş kaydı yüklendi; son #"+last+
+  $("status").textContent=draws.size+" arşiv çekiliş kaydı yüklendi (kaynak: data/draws.txt); son #"+last+
   " · Sonraki tahmin #"+(last+1)+". Kamuya açık sistem için aynı arşiv kullanılıyor.";
   restoreLocal();sourceOptions();
   if(state.forecast){state.forecast=settleForecast(state.forecast,draws);renderForecast()}
