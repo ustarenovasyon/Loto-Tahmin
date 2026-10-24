@@ -77,7 +77,24 @@
 <section class="s-card"><div class="s-title"><h2>04 · Sistemin oluşturduğu kupon tahminleri</h2><small>Otomatik üretilir · gerçekte satın alınmaz · TXT olarak indirilebilir</small></div>
 <div class="s-actions"><button type="button" class="s-button primary" id="make">✣ Öne çıkan sistemlerle tahmin üret</button><button type="button" class="s-button" id="download">↓ TXT indir</button><button type="button" class="s-button" id="export">↓ Yerel kayıt JSON</button></div>
 <div id="forecastResult" class="s-empty">Henüz tahmin hazırlanmadı.</div></section>
-<section class="s-card"><div class="s-title"><h2>05 · Herkese açık sistem günlüğü</h2><small>Üretim tarihi ve önceki GitHub kayıtları kontrol edilebilir</small></div>
+<section class="s-card" id="final" aria-labelledby="finalTitle">
+<div class="s-title"><h2 id="finalTitle">05 · Oynayacağım Kuponlar</h2><small>Çok sayıda tahminden, senin seçtiğin kadar altılı</small></div>
+<p class="s-muted">Sistemlerin oluşturduğu bütün kolonların içinden, geçmişte gerçek çekilişlerde ölçülen kolon performansı ve birbirine benzememe kuralıyla son seçimi oluştur. <strong>Yeni veya uydurma kolon eklemez.</strong> Kuponlar satın alınmış değildir.</p>
+<div class="s-grid">
+<label>Kaç kolon seçilsin?<input id="finalCount" type="number" min="1" max="100" value="5" inputmode="numeric"></label>
+<label>Kuponların kaynağı<select id="finalSource"><option value="public">Herkese açık önceden kaydedilenler</option><option value="local">Bu sayfada hazırladıklarım</option></select></label>
+<label>Geçmiş kolon testi<select id="finalPeriod"><option value="5">5 gerçek çekiliş</option><option value="10" selected>10 gerçek çekiliş</option><option value="20">20 gerçek çekiliş</option><option value="50">50 gerçek çekiliş</option></select></label>
+<label>Kolonlar arası en fazla ortak sayı<select id="finalOverlap"><option value="3">3 (daha farklı)</option><option value="4" selected>4 (dengeli)</option><option value="5">5 (yalnızca aynı kolon yasak)</option></select></label>
+</div>
+<div class="s-actions">
+<button type="button" class="s-button primary" id="finalSelect">★ En iyi ölçülen adaylardan seç</button>
+<button type="button" class="s-button" id="finalDownload" disabled>↓ Sadece seçilenleri TXT indir</button>
+<button type="button" class="s-button" id="finalCopy" disabled>⧉ Kuponları kopyala</button>
+</div>
+<div id="finalResult" class="s-empty">Henüz son seçim yapılmadı. Önceden kaydedilmiş sistem tahminlerinden de doğrudan seçebilirsin.</div>
+<div class="s-result"><strong>Önemli:</strong> Buradaki “en iyi” yalnızca geçmiş test ve dağılım kriterleriyle yapılan sıralamadır. Süper Loto'da belirli bir altılının gelecekte kazanacağını önceden bilmek mümkün değildir; bütün geçerli altılıların büyük ikramiye olasılığı eşittir. Hedef çekilişin sonucu seçim için kullanılmaz.</div>
+</section>
+<section class="s-card"><div class="s-title"><h2>06 · Herkese açık sistem günlüğü</h2><small>Üretim tarihi ve önceki GitHub kayıtları kontrol edilebilir</small></div>
 <div class="s-actions"><a href="https://github.com/ustarenovasyon/Loto-Tahmin/commits/main/data/system-kosesi-ledger.json" target="_blank" rel="noopener noreferrer" class="s-button" style="text-decoration:none">↗ GitHub kayıt geçmişi</a><button type="button" id="publicRefresh" class="s-button">⟳ Kamuya açık kayıtları güncelle</button></div>
 <div id="publicResults" class="s-empty">Herkese açık sonuç günlüğü kontrol ediliyor…</div>
 <p class="s-muted">Sistem yalnızca projedeki data/draws.txt arşivinden hesaplama yapar; eksik çekiliş veya uydurma sayı tamamlamaz. Geçmiş testlerde sonuç tahmine girmez. Çekiliş sonrası isabet ayrı ölçülür. Gerçekte kupon satın alma işlemi yapılmaz. GitHub iş akışı tahminleri kaydeder; sonradan değişiklik olup olmadığını commit tarihçesinden kontrol edebilirsin. Resmî sonuçları otomatik alma henüz bağlı değil; arşiv güncellenmedikçe sonuç beklemede kalır.</p></section>
