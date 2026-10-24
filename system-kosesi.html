@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10253d"><meta name="description" content="Süper Loto Sistem Köşesi: matematik ve analiz stratejilerini geçmişte dene, gelecek çekiliş için sanal kupon üret ve sonuçları şeffaf takip et.">
+<title>Sistem Köşesi · Loto Tahmin</title>
+<link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./lab.css">
+<style>
+:root{--s-accent:#205ddd;--s-light:#ecf3ff;--s-border:#dce4f0;--s-ink:#162841}
+.system-shell{max-width:1150px;margin:auto;padding:14px 16px 55px;color:var(--s-ink)}
+.system-shell *{box-sizing:border-box}
+.system-shell .lab-nav nav{display:flex;gap:12px;flex-wrap:wrap}
+.s-hero{background:linear-gradient(120deg,#0f2c50,#174a7a 65%,#1e69a0);color:#fff;padding:28px;border-radius:23px;margin:20px 0}
+.s-hero h1{font-size:clamp(28px,6vw,44px);line-height:1.13;letter-spacing:-1px;margin:8px 0}
+.s-hero p{color:#d5e5fa;max-width:800px;line-height:1.6}
+.s-eyebrow{font-size:11px;letter-spacing:1.2px;font-weight:800;color:#9de6da}
+.s-banner{border:1px solid #a8c7ef;border-radius:14px;background:#eff6ff;padding:13px 16px;margin:14px 0;font-size:13px;line-height:1.6}
+.s-card{background:#fff;border:1px solid var(--s-border);border-radius:19px;padding:20px;margin:17px 0;box-shadow:0 6px 22px #0b2b500c}
+.s-title{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:13px}
+.s-title h2{margin:0;font-size:21px;color:#142e4f}
+.s-title small,.s-muted{color:#63758c;font-size:12px}
+.s-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.s-grid label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#465c78}
+.s-grid select,.s-grid input{width:100%;padding:12px 10px;border-radius:10px;border:1px solid #bdcde0;background:#fff;color:#172944;font:inherit;font-size:14px;min-height:44px}
+.s-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:15px 0 4px}
+.s-button{font-weight:800;border:1px solid #c9d7e9;background:#eaf1fa;border-radius:11px;padding:12px 15px;cursor:pointer;color:#203c5e;min-height:43px}
+.s-button.primary{color:white;border-color:#1856c7;background:#205ddd}
+.s-button:disabled{opacity:.5;cursor:progress}
+.s-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}
+.s-kpi{border:1px solid #dce5ef;border-radius:13px;padding:14px;background:#f8fbff}
+.s-kpi strong{font-size:24px;display:block;color:#17477f}
+.s-kpi span{color:#5b7089;font-size:12px}
+.s-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.s-table{border-collapse:collapse;width:100%;font-size:12px;min-width:660px}
+.s-table th{text-align:left;background:#f0f5fc;color:#425b7a;padding:12px 9px;white-space:nowrap}
+.s-table td{border-bottom:1px solid #e5ecf5;padding:11px 9px;vertical-align:middle}
+.s-table td strong{display:block;color:#153e72}
+.s-table td small{display:block;color:#67809a}
+.s-table tbody tr:hover{background:#f7faff}
+.s-table button{border:1px solid #d0dded;background:#fff;border-radius:7px;padding:7px;color:#1f5aa4;cursor:pointer}
+.s-balls{display:flex;gap:5px;flex-wrap:wrap;padding:5px 0}
+.s-ball{border:1px solid #c8d8eb;background:#f4f8ff;color:#1d4d88;border-radius:50%;width:31px;height:31px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.s-ball.hit{color:#fff;background:#187959;border-color:#187959}
+.s-tickets{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:10px;margin:10px 0}
+.s-ticket{border-radius:12px;border:1px solid #dce6f2;background:#fbfdff;padding:12px}
+.s-ticket h4{margin:0 0 9px;font-size:13px}
+.s-ticket>p{font-size:12px;color:#596e85;margin:0 0 8px}
+.s-result{padding:12px;background:#f1f6fd;border-radius:11px;color:#355574;margin-top:12px;line-height:1.5;font-size:13px}
+.s-good{color:#0a7352;font-weight:800}.s-pending{color:#aa6813;font-weight:700}
+.s-empty{padding:20px;background:#f8faff;border:1px dashed #c6d7e8;border-radius:12px;font-size:13px;color:#647a91}
+.s-bottom{font-size:12px;color:#66809b;line-height:1.5;margin:25px 0}
+@media(max-width:850px){.s-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.s-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.s-card{padding:15px}.s-hero{padding:22px 18px}}
+@media(max-width:430px){.s-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.s-grid label{font-size:11px}.s-kpi strong{font-size:20px}.s-hero h1{font-size:29px}}
+</style>
+</head>
+<body><main class="system-shell">
+<header class="lab-nav"><a class="lab-logo" href="./index.html">◈ <strong>LOTO TAHMİN</strong></a><nav>
+<a href="./index.html">∑ Matematik</a><a href="./lab.html">◉ Analiz</a><a href="./club-compare.html">◎ Ortak Sayılar</a><a href="./system-kosesi.html" aria-current="page">✦ Sistem Köşesi</a></nav></header>
+<section class="s-hero"><span class="s-eyebrow">ŞEFFAF TEST · OTOMATİK DENEME · GERÇEK ARŞİV</span><h1>✦ Sistem Köşesi</h1><p>Sistem analizleri ve matematik yöntemlerini ayrı ayrı dener, iki havuzun ortaklarını bulur, gerçek geçmiş çekilişlerde sonuçlarını karşılaştırır ve yeni çekiliş için sanal altılı kuponlar oluşturur.</p>
+<div class="s-actions"><button type="button" class="s-button primary" id="scan">↗ Tüm sistemleri test et</button><button type="button" class="s-button" id="reload">⟳ Arşivi yenile</button></div></section>
+<div role="status" aria-live="polite" class="s-banner" id="status">Gerçek arşiv yükleniyor…</div>
+<section class="s-card" aria-labelledby="paramsTitle"><div class="s-title"><h2 id="paramsTitle">01 · Otomatik araştırma ayarları</h2><small>Test yalnızca hedef öncesindeki çekilişlerle yapılır</small></div>
+<div class="s-grid">
+<label>Hedef çekiliş #<input type="number" id="target" value="976" min="32" inputmode="numeric"></label>
+<label>Geçmişte test<select id="period"><option value="10" selected>Son 10 çekiliş</option><option value="20">Son 20 çekiliş</option><option value="50">Son 50 çekiliş</option><option value="100">Son 100 çekiliş</option></select></label>
+<label>Öne çıkan sistem<select id="top"><option value="5">İlk 5</option><option value="10" selected>İlk 10</option><option value="20">İlk 20</option></select></label>
+<label>Sistem başına kolon<select id="coupons"><option value="3">3 sanal kolon</option><option value="5" selected>5 sanal kolon</option><option value="10">10 sanal kolon</option></select></label>
+</div><div class="s-kpis" id="kpis"></div><div class="s-result">Puan = geçmişteki ortalama isabetin, aynı büyüklükteki rastgele havuzun beklenen isabetinden farkı; yeterli sayıda test yapılmayan yöntemlerin puanı düşürülür. Bu bir gelecek başarı garantisi değildir. Çok sayıda strateji denemek tesadüfi yüksek skorlar doğurabilir.</div></section>
+<section class="s-card"><div class="s-title"><h2>02 · Strateji başarı sıralaması</h2><small id="rankNote">Test bekleniyor</small></div>
+<div class="s-scroll"><table class="s-table"><thead><tr><th># / Strateji</th><th>Ort. havuz</th><th>Ort. isabet</th><th>Rastgele beklenti</th><th>Fark</th><th>3+ yakalama</th><th>Test</th></tr></thead><tbody id="rankBody"><tr><td colspan="7">Arşiv hazırlanıyor…</td></tr></tbody></table></div>
+<div id="detail" class="s-result">Bir stratejinin satırındaki “İncele” düğmesine basarak çekiliş çekiliş sonucunu görebilirsin.</div></section>
+<section class="s-card"><div class="s-title"><h2>03 · İki yöntemin ortak sayılarını bul</h2><small>30 + 30 aday → ortak havuz</small></div>
+<div class="s-grid"><label>Birinci yöntem<select id="sourceA"></select></label><label>İkinci yöntem<select id="sourceB"></select></label>
+<label>Karşılaştırma<select id="combine"><option value="intersection">Kesişim · ortaklar</option><option value="union">Birleşim · tüm adaylar</option></select></label>
+<label>Kaç kolon?<select id="compareCount"><option value="3">3</option><option value="5" selected>5</option><option value="10">10</option></select></label></div>
+<div class="s-actions"><button type="button" class="s-button primary" id="compare">◎ Ortakları hesapla ve kupon oluştur</button></div>
+<div id="compareResult" class="s-empty">Birinci ve ikinci stratejiyi seç. Ana tarama, bütün ikili kesişimleri zaten otomatik dener.</div></section>
+<section class="s-card"><div class="s-title"><h2>04 · Gelecek çekiliş için sanal kuponlar</h2><small>Satın alma yapmaz · TXT olarak indirilebilir</small></div>
+<div class="s-actions"><button type="button" class="s-button primary" id="make">✣ Öne çıkan sistemlerle kupon hazırla</button><button type="button" class="s-button" id="download">↓ TXT indir</button><button type="button" class="s-button" id="export">↓ Yerel kayıt JSON</button></div>
+<div id="forecastResult" class="s-empty">Henüz kupon hazırlanmadı.</div></section>
+<section class="s-card"><div class="s-title"><h2>05 · Herkese açık sistem günlüğü</h2><small>GitHub sürüm geçmişiyle kontrol edilebilir</small></div>
+<div class="s-actions"><a href="https://github.com/ustarenovasyon/Loto-Tahmin/commits/main/data/system-kosesi-ledger.json" target="_blank" rel="noopener noreferrer" class="s-button" style="text-decoration:none">↗ GitHub kayıt geçmişi</a><button type="button" id="publicRefresh" class="s-button">⟳ Kamuya açık kayıtları güncelle</button></div>
+<div id="publicResults" class="s-empty">Herkese açık sonuç günlüğü kontrol ediliyor…</div>
+<p class="s-muted">Kamuya açık kayıtları GitHub iş akışı oluşturur; sonuç geldikten sonra geçmişteki tahminler değiştirilemez. GitHub Pages sunucusu canlı bahis yapmaz. Sonuçlar arşive eklendiğinde karşılaştırılır; resmî sonuçları otomatik alma bağlantısı kurulmamışsa yeni çekiliş arşive kendiliğinden eklenmez.</p></section>
+<footer class="s-bottom">Sistem Köşesi gerçek 6/60 Süper Loto çekilişleriyle çalışır. Kuponlar yalnızca sanal araştırma çıktılarıdır. Rastgele çekilişlerde her altılı kombinasyonun kazanma şansı eşittir; geçmiş performans geleceği garanti etmez. <a href="./lab.html">Analiz Merkezi'ne dön</a></footer>
+</main><script type="module" src="./system-kosesi-ui.mjs"></script></body></html>
