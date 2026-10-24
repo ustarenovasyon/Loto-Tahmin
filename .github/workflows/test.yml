@@ -11,4 +11,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: node --check system-kosesi-ui.mjs && node --check system-kosesi-engine.mjs && node --check scripts/system-kosesi-ledger.mjs
       - run: node --test tests/*.test.mjs
