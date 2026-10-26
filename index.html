@@ -7,6 +7,7 @@
   <meta name="description" content="Güncellenen gerçek Süper Loto çekilişleriyle esnek matematiksel strateji laboratuvarı.">
   <title>Loto Tahmin · Strateji Laboratuvarı</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./assistant.css">
 </head>
 <body>
   <div class="shell">
@@ -22,6 +23,23 @@
     </header>
 
     <main>
+      <section class="ai-panel" aria-labelledby="aiTitle">
+        <header class="ai-head"><div><span class="ai-label">YAPAY ZEKÂ &amp; ANALİZ ASİSTANI</span><h2 id="aiTitle">Sayılarını konuşarak hazırla.</h2><p>Kaç sayı istediğini yaz. Analizleri karşılaştır, havuzunu oluştur ve içinden farklı altılı kolonlar hazırla.</p></div><button type="button" id="aiReset" class="ai-reset">Yeni çalışma</button></header>
+        <div class="ai-body">
+          <p class="ai-mode" id="aiMode">Yerel analiz modu · Sohbet yapay zekâsı bağlı değil</p>
+          <div class="ai-chips" aria-label="Örnek talimatlar">
+            <button type="button" data-ai-command="Önümüzdeki çekiliş için en iyi 20 sayı bul" disabled>20 sayı analiz et</button>
+            <button type="button" data-ai-command="Önümüzdeki çekiliş için 10 sayı bul ve 5 kolon oluştur" disabled>10 sayıdan 5 kolon</button>
+            <button type="button" data-ai-command="Önümüzdeki çekiliş için 30 sayı bul ve 10 kolon oluştur" disabled>30 sayıdan 10 kolon</button>
+          </div>
+          <div id="aiMessages" class="ai-messages" role="log" aria-live="polite" aria-label="Asistan konuşması"></div>
+          <form id="aiForm" class="ai-form"><label style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)" for="aiInput">Talimatın</label><textarea id="aiInput" maxlength="2000" placeholder="Önümüzdeki çekiliş için 20 sayı bul. Sonra bunlardan 5 kolon oluştur." required></textarea><button id="aiSend" type="submit" disabled>Analiz et →</button></form>
+          <p id="aiProgress" class="ai-progress" role="status">Arşiv hazırlanıyor…</p>
+          <p class="ai-note">Sıralama, geçmiş veriden hesaplanan analiz puanlarına dayanır. Adil bir çekilişte her altılının olasılığı eşittir; yüksek puan, daha yüksek gerçek kazanma olasılığı değildir.</p>
+          <details class="ai-connection"><summary>Asistan bağlantısı ve çalışma modu</summary><p>Şu anda ücretsiz yerel mod, sayı/kolon adedi, dönem ve temel eleme komutlarını yorumlar; genel sohbet yapay zekâsı değildir. Serbest anlatımı anlamak için güvenli bir yapay zekâ servisi bağlanmalıdır. Bağlantı başarısızsa sistem yapay zekâ çalışmış gibi davranmaz.</p><label>Güvenli asistan servis adresi<input id="aiEndpoint" type="url" placeholder="https://asistan-servisin.example/interpret" autocomplete="off"></label><label>Servis erişim kodu (yalnızca bu oturum)<input id="aiAccess" type="password" autocomplete="off"></label><p>Model API anahtarını buraya yazma; API anahtarı sunucuda tutulur.</p></details>
+          <section id="aiResults" class="ai-results" hidden aria-labelledby="aiResultTitle"><h3 id="aiResultTitle"></h3><p id="aiEvidence"></p><div id="aiPool" class="ai-balls"></div><div id="aiColumns"></div><div class="ai-actions"><button type="button" id="aiDownload" disabled>TXT indir</button><button type="button" id="aiSavePool" disabled>Havuzu kaydet</button></div><details class="ai-audit"><summary>Analizler, sıralama puanları ve geçmiş kontrol</summary><div id="aiAudit"></div></details></section>
+        </div>
+      </section>
       <div class="lab-promo" style="display:flex;align-items:center;gap:18px;justify-content:space-between;flex-wrap:wrap;border:1px solid #bcd0f8;background:#eef4ff;border-radius:16px;padding:17px 20px;margin-top:16px"><div style="flex:1;min-width:190px"><strong style="display:block;color:#204789;font-size:15px">◈ Analiz Merkezi açıldı</strong><span style="font-size:12px;color:#5e7291">DNA, Limit, Matriks, Sıralı Analizler, kupon atölyesi ve Sistemler Kulübü. Kaydettiğin matematik havuzlarını burada kullan.</span></div><a href="./lab.html" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:#315de6;color:white;font-size:12px;font-weight:800;padding:12px 18px;min-height:43px">Analiz Merkezi'ni Aç →</a></div>
       <div class="lab-promo" style="display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap;background:#e6f7f1;border:1px solid #cce6dc;border-radius:15px;padding:16px 20px;margin-top:14px"><div style="flex:1;min-width:200px"><strong style="display:block;color:#1b6453;font-size:15px">♜ Kulüp Ortak Sayılar</strong><span style="font-size:12px;color:#538477">Kendi havuzunu farklı sistemlerin tahminleriyle, kupon yapmadan önce karşılaştır.</span></div><a href="./club-compare.html" style="text-decoration:none;border-radius:10px;background:#1e7f6e;color:#fff;font-size:12px;font-weight:800;padding:12px 18px">Ortakları Bul →</a></div>
 <div class="lab-promo" style="display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap;background:#e8efff;border:1px solid #b5cbef;border-radius:15px;padding:16px 20px;margin-top:14px"><div style="flex:1;min-width:200px"><strong style="display:block;color:#224e9a;font-size:15px">✦ Sistem Köşesi · Otomatik Strateji Yarışı</strong><span style="font-size:12px;color:#526f9c">1.000+ strateji ve kesişim, gerçek geçmiş testleri, gelecek hedef için sanal kuponlar, herkese açık kayıt günlüğü.</span></div><a href="./system-kosesi.html" style="text-decoration:none;border-radius:10px;background:#205ddd;color:#fff;font-size:12px;font-weight:800;padding:12px 18px">Sistem Köşesi →</a></div>
@@ -135,5 +153,6 @@
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script type="module" src="./app.mjs"></script>
+  <script type="module" src="./assistant-ui.mjs"></script>
 </body>
 </html>

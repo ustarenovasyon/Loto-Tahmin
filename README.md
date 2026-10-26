@@ -98,3 +98,19 @@ Eski kayıtlar değişmez; sonuç henüz yoksa sayı üretilmez. Kaynak bağlant
 Yeni arşivle önce önceden kaydedilmiş tahminler değerlendirilir, ardından sonraki hedef hazırlanır.
 Botun veri commit'i diğer iş akışlarını tetiklemeyeceğinden aynı iş akışı Pages yayımlamasını da yapar.
 Eski hesap testleri 1–975 tarihsel kesitini kullanır; güncel arşiv ayrıca bütünlük testinden geçer.
+
+## Ana sayfa · Yapay Zekâ ve Analiz Asistanı
+Sohbet alanı ana sayfada ilk bölüm olarak açılır. Ücretsiz yerel komut modu bir dil
+modeli değildir; 10/20/30 sayı, kolon sayısı, son dönem ve temel eleme isteklerini
+Türkçe komutlarla analiz motoruna iletir. Anlaşılmayan talimatı başarıyla yapılmış
+saymaz. Serbest sohbet modeli için ayrıca güvenli sunucu bağlantısı gerekir;
+`server/README.md` bağlantı sözleşmesini ve kurulumu açıklar. Sunucu henüz dağıtılmamıştır.
+Model API anahtarı tarayıcıya veya repoya yazılmaz.
+
+31 mevcut analiz, 20/50/seçilen geçmiş dönemlerde karşılaştırılır. Hedef öncesindeki
+24 çekilişin ilk 12'sinde ağırlıklar ölçülür, diğer 12'sinde sabit ağırlıklarla havuz
+kontrol edilir. Her geçmiş hedef yalnızca kendi öncesindeki veriyi kullanır. Puanlar
+olasılık veya garanti değildir; kısa kontrol dönemi genel başarı iddiası taşımaz.
+Analizler Web Worker'da çalışır; mobil sohbet ekranı hesap sırasında kilitlenmez.
+Kolonlar yalnızca seçilen havuzdan üretilir; adet/benzersizlik ayrıca doğrulanır.
+TXT indirme, analiz havuzu kaydetme ve son havuzla devam komutu desteklenir.
