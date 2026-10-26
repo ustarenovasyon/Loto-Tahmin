@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {parseArchive} from "../engine.mjs";
 import {catalog,SYSTEM_COUNT,buildPools,backtest,virtualCoupons,forecast,settleForecast,countHits} from "../system-kosesi-engine.mjs";
-const draws=parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"));
+const draws=new Map([...parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"))].filter(([id])=>id<=975));
 test("catalog includes 31 analyses, math methods, 30-number variations and ALL pairwise intersections",()=>{
  const {sources,specs}=catalog();
  assert.equal(sources.length,44);

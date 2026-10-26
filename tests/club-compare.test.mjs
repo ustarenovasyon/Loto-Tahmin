@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {parseArchive} from "../engine.mjs";
 import {parseOwnPool,parseExternalColumns,localClubSources,compareClubSources,compareDrawsToPool} from "../club-compare-engine.mjs";
-const draws=parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"));
+const draws=new Map([...parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"))].filter(([id])=>id<=975));
 test("user supplied club text parses multiple six-number lines without mistaking leading row IDs",()=>{
  const p=parseExternalColumns("B 9336 | DELTA 03 | 975 | 22.10.2026 | 21 24 38 42 52 55\n"+
  "1,6,9,19,20,21\n1,6,9,19,20,21\ninvalid");

@@ -1,42 +1,54 @@
-name: Sistem Kosesi Public Journal
+name: Update real draws and System Corner
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 8 * * *'
+    - cron: '17 * * * *'
   push:
     branches: [main]
     paths:
       - 'data/draws.txt'
       - 'system-kosesi-engine.mjs'
-      - 'scripts/system-kosesi-ledger.mjs'
-
+      - 'scripts/**'
+      - '.github/workflows/system-kosesi.yml'
 permissions:
   contents: write
-
+  pages: write
+  id-token: write
 concurrency:
   group: public-system-ledger
   cancel-in-progress: false
-
 jobs:
   prepare-and-settle:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: true
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify strategy tests
+      - name: Fetch sequential verified results
+        run: node scripts/update-draws.mjs
+      - name: Verify strategy and archive tests
         run: node --test tests/*.test.mjs
-      - name: Prepare forecasts and evaluate completed draws
+      - name: Settle existing forecasts and prepare next draw
         run: node scripts/system-kosesi-ledger.mjs
-      - name: Publish append-only diary
+      - name: Preserve updated archive and journal
         run: |
-          if ! git diff --quiet -- data/system-kosesi-ledger.json; then
+          if ! git diff --quiet -- data; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/system-kosesi-ledger.json
-            git commit -m "Update public System Corner prediction diary"
+            git add data/draws.txt data/system-kosesi-ledger.json
+            git commit -m "Update verified draw archive and public diary"
+            git pull --rebase origin main
             git push
           fi
+      # GITHUB_TOKEN pushes do not trigger the other push workflow.
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+      - name: Publish updated archive
+        id: deployment
+        uses: actions/deploy-pages@v4

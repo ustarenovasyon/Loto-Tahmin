@@ -1,8 +1,9 @@
-SÜPER LOTO — 975 ÇEKİLİŞİN TAMAMI
-Kapsam: Genel sıra 0001–0975; 02.08.2020–22.10.2026
-Derleme tarihi: 23.10.2026 (Türkiye)
+SÜPER LOTO — 976 ÇEKİLİŞİN TAMAMI
+Kapsam: Genel sıra 0001–0976; 02.08.2020–25.10.2026
+Derleme tarihi: 26.10.2026 (otomatik)
 
 KAYNAKLAR
+Otomatik eklenen sonuçlar: LotoTürkiye kamuya açık çekiliş sonuçları; önceki arşiv korunur.
 Genel sıra 0076–0975: Kullanıcının sağladığı 900 çekilişlik LotoTürkiye kaynaklı arşiv.
 Genel sıra 0001–0075: LotoTürkiye çekiliş sonuçları ve karşılaştırmalı arşivler (loto.gen.tr, lotobil.com).
 https://www.lototurkiye.com/SUPER-LOTO-SISAL/CEKILIS-TABLOLARI/12
@@ -14,11 +15,12 @@ OKUMA KILAVUZU
 GENEL SIRA: Süper Loto 2020 yeni döneminden itibaren kesintisiz çekiliş numarası.
 YIL İÇİ NO: İlgili yılın çekiliş sırası; her takvim yılında 1’den başlar.
 SAYILAR: Küçükten büyüğe sıralıdır; topların fiziksel düşme sırası değildir.
-KONTROLLER: 975 benzersiz sıra (1–975), 975 farklı tarih, her satırda 1–60 aralığında 6 farklı sayı.
+KONTROLLER: 976 benzersiz sıra (1–976), her satırda 1–60 aralığında 6 farklı sayı.
 SIRALAMA: En yeni çekiliş üstte, en eski altta.
 
 GENEL SIRA | YIL İÇİ NO | TARİH      | ÇIKAN SAYILAR
 -----------|------------|------------|------------------------------
+0976 | 128 | 25.10.2026 | 01 - 03 - 05 - 18 - 28 - 59
 0975 | 127 | 22.10.2026 | 07 - 08 - 32 - 35 - 49 - 51
 0974 | 126 | 20.10.2026 | 04 - 10 - 14 - 19 - 51 - 52
 0973 | 125 | 18.10.2026 | 16 - 23 - 32 - 38 - 51 - 52

@@ -4,7 +4,7 @@ import {readFileSync} from "node:fs";
 import {parseArchive} from "../engine.mjs";
 import {MODULES,CLUB,buildContext,analyze,compareAnalysisSets,assessPool,historicalCheck,ticketMetrics,filterPipeline,inspectBall,orderedHistory} from "../analysis-engine.mjs";
 import {generateCoupons,clubContest,hexKey} from "../coupon-engine.mjs";
-const draws=parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"));
+const draws=new Map([...parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"))].filter(([id])=>id<=975));
 test("975 real draws and 31 functional analysis modules",()=>{
  assert.equal(draws.size,975);
  assert.equal(MODULES.length,31);

@@ -156,7 +156,8 @@ async function initialize(){
     const response=await fetch("./data/draws.txt",{cache:"no-store"});
     if(!response.ok)throw Error("TXT veri dosyası yüklenemedi ("+response.status+").");
     const txt=await response.text(),draws=parseArchive(txt);
-    if(draws.size!==975||!draws.has(1)||!draws.has(975))throw Error("Yerleşik arşiv 1–975 arasında eksik.");
+    if(!draws.has(1))throw Error("Yerleşik arşivin başlangıcı eksik.");
+    $("targetInput").value=String(Math.max(...draws.keys())+1);
     state.draws=draws;updateArchiveView();updateTarget();renderSaved();run(true);
   }catch(e){
     $("dataStatus").classList.add("error");$("dataStatus").textContent="Arşiv yüklenemedi";

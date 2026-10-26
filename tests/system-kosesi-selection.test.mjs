@@ -4,7 +4,7 @@ import {readFileSync} from "node:fs";
 import {parseArchive} from "../engine.mjs";
 import {forecast,settleForecast} from "../system-kosesi-engine.mjs";
 import {columnHistory,selectFinalCoupons} from "../system-kosesi-selection.mjs";
-const draws=parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"));
+const draws=new Map([...parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"))].filter(([id])=>id<=975));
 test("final shortlist contains only existing source tickets, not invented numbers",()=>{
  const record=forecast(draws,{target:976,period:5,systems:7,coupons:5});
  const evidence=columnHistory(draws,record,{period:5});

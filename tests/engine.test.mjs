@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {parseArchive,decimal,rational,displayFraction,selectDraws,runStrategy,combinePools,filterPool} from "../engine.mjs";
 
-const archive=parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"));
+const archive=new Map([...parseArchive(readFileSync(new URL("../data/draws.txt",import.meta.url),"utf8"))].filter(([id])=>id<=975));
 
 test("uploaded archive is complete from 1 through 975",()=>{
  assert.equal(archive.size,975);

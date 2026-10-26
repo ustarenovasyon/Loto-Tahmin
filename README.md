@@ -89,3 +89,12 @@ Yerel bilgisayarda açmak için (ES modülleri ve TXT yüklemesi nedeniyle doğr
 
 ## Test
 `node --test tests/*.test.mjs`
+
+## Otomatik sonuç güncelleme
+`Update real draws and System Corner` iş akışı saatte bir ve elle çalıştırılabilir.
+`scripts/update-draws.mjs`, yalnızca arşivdeki son sıradan sonraki yayımlanmış sonuçları alır;
+Windows-1254/UTF-8 kaynak kodlamasını, altılıyı, tarihi ve yıl içi sırayı doğrular.
+Eski kayıtlar değişmez; sonuç henüz yoksa sayı üretilmez. Kaynak bağlantı hataları iş akışını başarısız gösterir.
+Yeni arşivle önce önceden kaydedilmiş tahminler değerlendirilir, ardından sonraki hedef hazırlanır.
+Botun veri commit'i diğer iş akışlarını tetiklemeyeceğinden aynı iş akışı Pages yayımlamasını da yapar.
+Eski hesap testleri 1–975 tarihsel kesitini kullanır; güncel arşiv ayrıca bütünlük testinden geçer.
